@@ -38,7 +38,8 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 .modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center}
 .modal.open{display:flex} .sheet{background:white;width:100%;max-width:760px;border-radius:18px 18px 0 0;padding:18px;max-height:80vh;overflow:auto}
 .sheet h2{margin:0 0 10px;font-size:18px} .tot{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee}
-.small{font-size:11px;color:var(--muted)} 
+.small{font-size:11px;color:var(--muted)}
+.cash-details{margin:6px 0 8px;border:1px solid #dbe4ec;border-radius:10px;background:#f8fafc;overflow:hidden}.cash-details summary{cursor:pointer;padding:10px;font-size:12px;font-weight:800;color:#244158;list-style:none}.cash-details summary::-webkit-details-marker{display:none}.cash-details summary:after{content:"▾";float:right}.cash-details[open] summary:after{content:"▴"}.bills{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 8px 8px}.bill{display:flex;align-items:center;justify-content:space-between;gap:6px;background:white;border:1px solid #dbe4ec;border-radius:8px;padding:6px 7px;font-size:12px}.bill input{width:62px;padding:7px;border:1px solid #cbd7e3;border-radius:7px;text-align:center}.cash-total{padding:8px;border-top:1px solid #e1e8ef;text-align:right;font-weight:800;font-size:12px}.cash-warning{color:#b42318;font-size:11px;padding:0 8px 8px}.cash-ok{color:var(--ok);font-size:11px;padding:0 8px 8px}
 </style>
 </head>
 <body>
@@ -75,6 +76,15 @@ const NAMES=["Daniel","Hairo","Mynor"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state));}
+const BILL_DENOMS=[200,100,50,20,10,5,1];
+function calcBills(bills){return BILL_DENOMS.reduce((sum,d)=>sum+d*Number((bills&&bills[d])||0),0);}
+function setBill(code,denom,value){
+  if(!state[code]) state[code]={};
+  if(!state[code].bills) state[code].bills={};
+  const n=Math.max(0,parseInt(value,10)||0);
+  state[code].bills[denom]=n;
+  state[code].cashOpen=true; saveState(); render();
+}
 function money(v){return "Q"+Number(v||0).toLocaleString("es-GT",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function render(){
  const q=document.getElementById("search").value.toLowerCase().trim();
@@ -95,6 +105,14 @@ function render(){
     <div class="payments">
       ${["Efectivo","Transferencia","Depósito","Crédito"].map((m,i)=>`<button class="payment ${s.paymentMethod===m?'selected':''}" onclick="pickPayment('${x.c}','${m}')">${s.paymentMethod===m?'✓ ':''}${m}</button>`).join("")}
     </div>
+    ${s.paymentMethod==='Efectivo'?`<details class="cash-details" ${s.cashOpen?'open':''}>
+      <summary>💵 Billetes y denominaciones</summary>
+      <div class="bills">
+        ${[200,100,50,20,10,5,1].map(d=>`<label class="bill"><span>Q${d}</span><input type="number" min="0" step="1" inputmode="numeric" value="${(s.bills&&s.bills[d])||0}" onchange="setBill('${x.c}',${d},this.value)" onclick="event.stopPropagation()"></label>`).join("")}
+      </div>
+      <div class="cash-total">Total en billetes: <span id="cash-total-${x.c}">${money(calcBills(s.bills))}</span></div>
+      ${s.amount!=null && Math.abs(calcBills(s.bills)-Number(s.amount))>.009?`<div class="cash-warning">⚠️ Los billetes no coinciden con el cobro de ${money(s.amount)}.</div>`:(s.amount!=null?`<div class="cash-ok">✓ Los billetes coinciden con el cobro.</div>`:'')}
+    </details>`:''}
     <div class="amount">
       <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??''}" ${s.amount!=null?'disabled':''}>
       ${s.amount!=null?`<button class="edit" onclick="editClient('${x.c}')">Editar</button>`:`<button class="save" onclick="saveClient('${x.c}')">Guardar</button>`}
@@ -111,6 +129,7 @@ function pick(code,i){
 function pickPayment(code,method){
  if(!state[code]) state[code]={};
  state[code].paymentMethod=method;
+ if(method==='Efectivo'){state[code].cashOpen=true;}
  saveState(); render();
 }
 function saveClient(code){
@@ -118,6 +137,10 @@ function saveClient(code){
  if(!s.paymentMethod){alert("Primero marca la forma de pago: efectivo, transferencia, depósito o crédito.");return;}
  const input=document.getElementById("amt-"+code); const v=parseFloat(input.value);
  if(!Number.isFinite(v)||v<0){alert("Agrega una cantidad válida.");return;}
+ if(s.paymentMethod==='Efectivo'){
+   const billsTotal=calcBills(s.bills);
+   if(Math.abs(billsTotal-v)>.009){alert(`Los billetes suman ${money(billsTotal)} y el cobro es ${money(v)}. Deben coincidir.`);return;}
+ }
  s.amount=Math.round(v*100)/100; s.savedAt=new Date().toISOString(); state[code]=s; saveState(); render();
 }
 function editClient(code){ if(!state[code])return; delete state[code].amount; delete state[code].savedAt; saveState(); render(); setTimeout(()=>document.getElementById("amt-"+code)?.focus(),30);}
@@ -153,8 +176,8 @@ function openSummary(){
 
 function closeModal(){document.getElementById("modal").classList.remove("open");}
 function exportCSV(){
- let rows=[["No.","Codigo","Cliente","Cobrador","Forma de pago","Cantidad Q","Fecha/hora"]];
- CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,s.collectorName||"",s.paymentMethod||"",s.amount??"",s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
+ let rows=[["No.","Codigo","Cliente","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
+ CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_10_Cobros.csv";a.click();
 }
