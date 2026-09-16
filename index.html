@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b74ff">
+<link rel="manifest" href="manifest.json">
+<title>Ruta 10 · Control de Cobros</title>
+<style>
+:root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2d,#0b74ff);color:white;padding:14px 14px 12px;box-shadow:0 3px 12px #0002}
+h1{font-size:20px;margin:0 0 3px} .sub{font-size:12px;opacity:.85}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
+.box{background:#ffffff18;border:1px solid #ffffff30;border-radius:10px;padding:8px;text-align:center}
+.box b{display:block;font-size:17px} .box span{font-size:10px;opacity:.85}
+.controls{padding:10px 12px;display:flex;gap:7px;position:sticky;top:105px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
+input.search{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:10px;font-size:14px;background:white}
+button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
+.btn{background:#e7eef6;color:#17324a} .primary{background:var(--blue);color:white}
+main{padding:8px 10px 70px;max-width:760px;margin:auto}
+.card{background:white;border:1px solid #dbe4ec;border-radius:13px;padding:11px;margin:8px 0;box-shadow:0 2px 7px #17324a0d}
+.row{display:flex;gap:9px;align-items:flex-start} .num{width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:#0759c7;display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+.name{font-weight:800;font-size:14px;line-height:1.2} .code{font-size:11px;color:var(--muted);margin-top:2px}
+.status{margin-left:auto;font-size:11px;font-weight:800} .pending{color:#9a6a00} .saved{color:var(--ok)}
+.collectors{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 7px}
+.collector{background:#edf2f7;color:#244158;border:2px solid transparent;padding:9px 5px;font-size:12px}
+.collector.selected{background:#e6f1ff;border-color:var(--blue);color:#005bd4}
+.amount{display:flex;gap:7px} .amount input{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:9px;font-size:16px}
+.amount .save{min-width:105px;background:var(--ok);color:white} .amount .edit{background:#ffe9e9;color:#a52323}
+footer{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #d7e1ea;padding:8px 10px;display:flex;gap:7px;z-index:20}
+footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted);padding:30px}
+.modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center}
+.modal.open{display:flex} .sheet{background:white;width:100%;max-width:760px;border-radius:18px 18px 0 0;padding:18px;max-height:80vh;overflow:auto}
+.sheet h2{margin:0 0 10px;font-size:18px} .tot{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee}
+.small{font-size:11px;color:var(--muted)} 
+</style>
+</head>
+<body>
+<header>
+<h1>🚚 Ruta 10 · Control de Cobros</h1>
+<div class="sub">60 clientes · Ruta 120210 · 16/09/2026</div>
+<div class="summary">
+<div class="box"><b id="count">0/60</b><span>clientes cobrados</span></div>
+<div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
+<div class="box"><b id="pending">60</b><span>pendientes</span></div>
+</div>
+</header>
+<div class="controls">
+<input id="search" class="search" placeholder="Buscar cliente o código…">
+<button class="btn" onclick="openSummary()">📊 Resumen</button>
+</div>
+<main id="list"></main>
+<footer>
+<button class="btn" onclick="exportCSV()">⬇️ Exportar</button>
+<button class="btn" onclick="backup()">💾 Respaldo</button>
+<button class="primary" onclick="clearRoute()">🔒 Cerrar/limpiar ruta</button>
+</footer>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+<div class="sheet"><h2>Resumen por cobrador</h2><div id="summary"></div>
+<button class="primary" style="width:100%;margin-top:12px" onclick="closeModal()">Cerrar</button></div>
+</div>
+
+<script>
+const CLIENTS=[{"n": 1, "c": "0001452389", "name": "TIENDA EBEN EZER"}, {"n": 2, "c": "0001452136", "name": "TIENDA SANJUANERITA"}, {"n": 3, "c": "0001310911", "name": "TIENDA LA BENDICION"}, {"n": 4, "c": "0001319839", "name": "COMERCIAL LA ORQUIDEA"}, {"n": 5, "c": "0001436390", "name": "TIENDA OSIEL"}, {"n": 6, "c": "0001451417", "name": "CLIENTE NUEVO"}, {"n": 7, "c": "0001451416", "name": "TIENDA SARITA"}, {"n": 8, "c": "0001436392", "name": "TIENDA DANA"}, {"n": 9, "c": "0001386472", "name": "TIENDA MARVELLA"}, {"n": 10, "c": "0001451853", "name": "TIENDA ADE"}, {"n": 11, "c": "0001053680", "name": "TIENDA SAN JOSE"}, {"n": 12, "c": "0001386543", "name": "TIENDA MARIA MORAN"}, {"n": 13, "c": "0001451244", "name": "TIENDA ELVIRA"}, {"n": 14, "c": "0001373264", "name": "TIENDA LA ECONOMICA"}, {"n": 15, "c": "0001452078", "name": "TIENDA LA MONTAOITA"}, {"n": 16, "c": "0001451246", "name": "TIENDA MILAGRO"}, {"n": 17, "c": "0001451247", "name": "TIENDA TZOTZIL"}, {"n": 18, "c": "0001452543", "name": "TIENDA SHERLYN"}, {"n": 19, "c": "0001451245", "name": "TIENDA RUTILIA"}, {"n": 20, "c": "0001451402", "name": "TIENDA NOHEMY"}, {"n": 21, "c": "0001451943", "name": "TIENDA Y VARIEDADES JOSUE"}, {"n": 22, "c": "0001158651", "name": "TIENDA LA ESQUINA"}, {"n": 23, "c": "0001451208", "name": "TIENDA CANITOS"}, {"n": 24, "c": "0001287660", "name": "TIENDA OCCIDENTAL"}, {"n": 25, "c": "0001386419", "name": "TIENDA LA RECTA"}, {"n": 26, "c": "0001451391", "name": "TIENDA JULITA"}, {"n": 27, "c": "0001452400", "name": "TIENDA EL FRANCO"}, {"n": 28, "c": "0001451577", "name": "TIENDA NANCY"}, {"n": 29, "c": "0001452525", "name": "TIENDA JOSEFINA"}, {"n": 30, "c": "0001451576", "name": "TIENDA MARIO"}, {"n": 31, "c": "0001452070", "name": "TIENDA LA BENDICION"}, {"n": 32, "c": "0001451942", "name": "TIENDA Y MOLINO DE MADERA"}, {"n": 33, "c": "0001452526", "name": "TIENDA AMARILIS"}, {"n": 34, "c": "0001451392", "name": "TIENDA MELISA"}, {"n": 35, "c": "0001451886", "name": "TIENDA E INTERNET DOOA GLADIS"}, {"n": 36, "c": "0001318414", "name": "TIENDA EL BUEN SAMARITANO"}, {"n": 37, "c": "0001451759", "name": "TIENDA AZUL"}, {"n": 38, "c": "0001192995", "name": "CANCHA SINTETICA LOS PINOS"}, {"n": 39, "c": "0001452068", "name": "TIENDA PAULO PAULINA"}, {"n": 40, "c": "0001452210", "name": "TIENDA CRUZ VERDE"}, {"n": 41, "c": "0001451750", "name": "TIENDA JOSE"}, {"n": 42, "c": "0001451896", "name": "TIENDA Y PAPELERIA LAS PEOAS"}, {"n": 43, "c": "0001452067", "name": "TIENDA LA BENDICION"}, {"n": 44, "c": "0001451884", "name": "TIENDA ABARROTERIA ARRUIN CUAN"}, {"n": 45, "c": "0001452453", "name": "TIENDA DE MADERA"}, {"n": 46, "c": "0001452211", "name": "TIENDA DOOA FLORY"}, {"n": 47, "c": "0001452292", "name": "TIENDA DON CARLOS"}, {"n": 48, "c": "0001451388", "name": "TIENDA CARMEN"}, {"n": 49, "c": "0001452399", "name": "TIENDA ESTRELLA"}, {"n": 50, "c": "0001451220", "name": "TIENDA SATURNO"}, {"n": 51, "c": "0001452522", "name": "TIENDA EL CRUCE"}, {"n": 52, "c": "0001452212", "name": "TIENDA LA FRESCURA"}, {"n": 53, "c": "0001451752", "name": "TIENDA CAAL"}, {"n": 54, "c": "0001452073", "name": "TIENDA LA BENDICION"}, {"n": 55, "c": "0001396244", "name": "SUPER MERCADITO EXPRESS"}, {"n": 56, "c": "0001452215", "name": "TIENDA SUPER CROCS"}, {"n": 57, "c": "0001198064", "name": "TIENDA LA ECONOMICA"}, {"n": 58, "c": "0001417235", "name": "ABARROTES LUPITA CARLOS ENRIQUE"}, {"n": 59, "c": "0001236307", "name": "TIENDA MIS PASITOS"}, {"n": 60, "c": "0001219769", "name": "DEPOSITO SAN JOSE"}];
+const KEY="ruta10_cobros_v1";
+const NAMES=["Daniel","Hairo","Mynor"];
+let state=JSON.parse(localStorage.getItem(KEY)||"{}");
+
+function saveState(){localStorage.setItem(KEY,JSON.stringify(state));}
+function money(v){return "Q"+Number(v||0).toLocaleString("es-GT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ const list=document.getElementById("list"); list.innerHTML="";
+ const filtered=CLIENTS.filter(x=>!q||x.name.toLowerCase().includes(q)||x.c.includes(q));
+ if(!filtered.length){list.innerHTML='<div class="empty">No encontré clientes con esa búsqueda.</div>';return;}
+ filtered.forEach(x=>{
+   const s=state[x.c]||{};
+   const card=document.createElement("div"); card.className="card";
+   const selected=s.collector||"";
+   card.innerHTML=`
+    <div class="row"><div class="num">${x.n}</div><div><div class="name">${x.name}</div><div class="code">${x.c}</div></div>
+    <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
+    <div class="collectors">
+      ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
+    </div>
+    <div class="amount">
+      <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??''}" ${s.amount!=null?'disabled':''}>
+      ${s.amount!=null?`<button class="edit" onclick="editClient('${x.c}')">Editar</button>`:`<button class="save" onclick="saveClient('${x.c}')">Guardar</button>`}
+    </div>`;
+   list.appendChild(card);
+ });
+ updateStats();
+}
+function pick(code,i){
+ if(!state[code]) state[code]={};
+ state[code].collector=String(i); state[code].collectorName=NAMES[i]; saveState(); render();
+}
+function saveClient(code){
+ const s=state[code]||{}; if(s.collector==null){alert("Primero marca uno de los 3 cobradores.");return;}
+ const input=document.getElementById("amt-"+code); const v=parseFloat(input.value);
+ if(!Number.isFinite(v)||v<0){alert("Agrega una cantidad válida.");return;}
+ s.amount=Math.round(v*100)/100; s.savedAt=new Date().toISOString(); state[code]=s; saveState(); render();
+}
+function editClient(code){ if(!state[code])return; delete state[code].amount; delete state[code].savedAt; saveState(); render(); setTimeout(()=>document.getElementById("amt-"+code)?.focus(),30);}
+function updateStats(){
+ let done=0,total=0; Object.values(state).forEach(s=>{if(s.amount!=null){done++;total+=Number(s.amount)||0;}});
+ document.getElementById("count").textContent=`${done}/60`;
+ document.getElementById("total").textContent=money(total);
+ document.getElementById("pending").textContent=60-done;
+}
+document.getElementById("search").addEventListener("input",render);
+
+function openSummary(){
+ const sums=NAMES.map((n,i)=>({name:n,count:0,total:0}));
+ Object.values(state).forEach(s=>{if(s.amount!=null&&s.collector!=null){let a=sums[Number(s.collector)];a.count++;a.total+=Number(s.amount)||0;}});
+ const done=Object.values(state).filter(s=>s.amount!=null).length;
+ document.getElementById("summary").innerHTML=sums.map(x=>`<div class="tot"><div><b>${x.name}</b><div class="small">${x.count} clientes</div></div><b>${money(x.total)}</b></div>`).join("")+
+ `<div class="tot" style="background:#eef8f3"><b>TOTAL</b><b>${money(sums.reduce((a,x)=>a+x.total,0))}</b></div>
+ <p class="small">Cobrado: ${done} de 60 · Pendientes: ${60-done}</p>`;
+ document.getElementById("modal").classList.add("open");
+}
+function closeModal(){document.getElementById("modal").classList.remove("open");}
+function exportCSV(){
+ let rows=[["No.","Codigo","Cliente","Cobrador","Cantidad Q","Fecha/hora"]];
+ CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,s.collectorName||"",s.amount??"",s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
+ const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_10_Cobros.csv";a.click();
+}
+function backup(){
+ const blob=new Blob([JSON.stringify({route:"10",date:"2026-09-16",state},null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_10.json";a.click();
+}
+function clearRoute(){
+ const pin=prompt("Para limpiar la ruta escribe CERRAR:");
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta limpiada. El respaldo exportado queda en tu teléfono.");}
+}
+render();
+</script>
+</body>
+</html>
