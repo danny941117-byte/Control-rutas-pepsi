@@ -136,6 +136,11 @@ function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
  if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta limpiada. El respaldo exportado queda en tu teléfono.");}
 }
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => console.log("SW:", err));
+  });
+}
 render();
 </script>
 </body>
