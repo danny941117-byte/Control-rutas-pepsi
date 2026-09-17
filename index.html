@@ -9,12 +9,16 @@
 <style>
 :root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2d,#0b74ff);color:white;padding:14px 14px 12px;box-shadow:0 3px 12px #0002}
-h1{font-size:20px;margin:0 0 3px} .sub{font-size:12px;opacity:.85}
-.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:11px}
-.box{background:#ffffff18;border:1px solid #ffffff30;border-radius:10px;padding:8px;text-align:center}
-.box b{display:block;font-size:17px} .box span{font-size:10px;opacity:.85}
-.controls{padding:10px 12px;display:flex;gap:7px;position:sticky;top:105px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2d,#0b74ff);color:white;padding:9px 12px 8px;box-shadow:0 3px 12px #0002}
+h1{font-size:19px;margin:0 0 2px} .sub{font-size:11px;opacity:.85}
+.summary-toggle{width:100%;margin-top:6px;padding:7px 10px;background:#ffffff16;border:1px solid #ffffff30;border-radius:9px;color:white;font-size:11px;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.summary-toggle .arrow{font-size:13px;transition:transform .15s ease}
+.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:max-height .18s ease,opacity .12s ease}
+header.summary-open .summary{max-height:240px;opacity:1}
+header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
+.box{background:#ffffff18;border:1px solid #ffffff30;border-radius:9px;padding:6px;text-align:center}
+.box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85}
+.controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
 input.search{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:10px;font-size:14px;background:white}
 button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
 .btn{background:#e7eef6;color:#17324a} .primary{background:var(--blue);color:white}
@@ -81,6 +85,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <header>
 <h1>🚚 Ruta 10 · Control de Cobros</h1>
 <div class="sub">1 cliente · Rutas <span id="routeLabel">224 y 224A</span> · 17/09/2026</div>
+<button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button>
 <div class="summary">
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q24,298.29</b><span>saldo por recolectar</span></div>
@@ -227,7 +232,7 @@ const KEY="ruta224_224a_cobros_v1";
 const BALANCE_KEY="ruta224_224a_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES=["Daniel","Hairo","Mynor"];
+const NAMES=["Daniel","Hairo","Rulio"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state));}
@@ -323,6 +328,15 @@ function updateStats(){
 }
 document.getElementById("search").addEventListener("input",render);
 
+function toggleGeneralData(){
+  const header=document.querySelector("header");
+  const controls=document.querySelector(".controls");
+  if(!header)return;
+  const open=!header.classList.contains("summary-open");
+  header.classList.toggle("summary-open",open);
+  if(controls)controls.style.top=open?"210px":"64px";
+}
+
 function openSummary(){
  const sums=NAMES.map((n,i)=>({name:n,count:0,total:0}));
  const payments=["Efectivo","Transferencia","Depósito","Crédito"];
@@ -369,6 +383,7 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(err => console.log("SW:", err));
   });
 }
+document.querySelector(".controls").style.top="64px";
 initIPSecurity();
 render();
 </script>
