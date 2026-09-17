@@ -43,8 +43,11 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 
 /* ===== ACCESO POR IP + CLAVE DE PRIMER ACCESO ===== */
 #ipGate{position:fixed;inset:0;z-index:99999;background:#071a2d;color:white;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
-#ipGateBox{width:100%;max-width:360px;background:#10283d;border:1px solid #ffffff22;border-radius:18px;padding:24px;box-shadow:0 18px 60px #0008}
-#ipGateBox h2{margin:0 0 8px;font-size:21px}#ipGateBox p{font-size:12px;opacity:.8;line-height:1.5;margin:0 0 16px}
+#ipGateBox{width:100%;max-width:390px;background:#10283d;border:1px solid #ffffff22;border-radius:18px;padding:24px;box-shadow:0 18px 60px #0008}
+#ipGateBox h2{margin:0 0 8px;font-size:21px}#ipGateBox p{font-size:12px;opacity:.8;line-height:1.5;margin:0 0 14px}
+.ipLabel{text-align:left;font-size:11px;opacity:.7;margin-top:9px}
+.ipValue{font-family:monospace;font-size:15px;font-weight:800;background:#071a2d;border:1px solid #ffffff18;border-radius:9px;padding:10px;word-break:break-all}
+#ipStatus{margin:12px 0;font-size:13px;font-weight:800}
 #secretInput{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff33;background:#fff;color:#102131;font-size:16px;text-align:center}
 #secretBtn{width:100%;margin-top:10px;background:#0b74ff;color:#fff;padding:12px}
 #secretMsg{min-height:18px;margin-top:9px;color:#ffb4b4;font-size:12px}
@@ -56,13 +59,24 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <div id="ipGate">
   <div id="ipGateBox">
     <div style="font-size:42px">🔐</div>
-    <h2>Ruta 10 · Acceso privado</h2>
-    <p id="ipGateText">Comprobando acceso…</p>
+    <h2>Ruta 10 · Diagnóstico de IP</h2>
+    <p id="ipGateText">Comprobando la IP pública de esta conexión…</p>
+
+    <div class="ipLabel">IP detectada</div>
+    <div id="ipDetected" class="ipValue">Consultando…</div>
+
+    <div class="ipLabel">IP autorizada configurada</div>
+    <div id="ipAuthorized" class="ipValue">TU_IP_PUBLICA</div>
+
+    <div id="ipStatus">Comprobando…</div>
+
     <div id="secretArea" style="display:none">
       <input id="secretInput" type="password" autocomplete="off" placeholder="Clave secreta">
       <button id="secretBtn" onclick="verifyFirstAccess()">Autorizar este dispositivo</button>
       <div id="secretMsg"></div>
     </div>
+  </div>
+</div>
   </div>
 </div>
 <header>
@@ -96,12 +110,13 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <script>
 
 // ===== CONFIGURACIÓN DE ACCESO =====
-// Escribe aquí TU IP PÚBLICA y la clave que quieres usar la primera vez.
+// 1) Coloca aquí tu IP pública cuando sepamos cuál detecta tu teléfono.
+// 2) La clave de primer acceso es 2425.
 const AUTHORIZED_IP="TU_IP_PUBLICA";
 const FIRST_ACCESS_SECRET="2425";
 const FIRST_ACCESS_KEY="ruta10_primer_acceso_autorizado_v1";
 const IP_CHECK_URL="https://api.ipify.org?format=json";
-const IP_CHECK_MS=30000; // vuelve a comprobar la IP cada 30 segundos
+const IP_CHECK_MS=30000;
 let currentIp="";
 let accessCheckInProgress=false;
 
@@ -109,10 +124,12 @@ function lockPage(message){
   document.body.classList.add("ip-locked");
   const gate=document.getElementById("ipGate");
   const text=document.getElementById("ipGateText");
+  const status=document.getElementById("ipStatus");
   const secret=document.getElementById("secretArea");
   if(gate)gate.style.display="flex";
   if(secret)secret.style.display="none";
   if(text)text.textContent=message||"Acceso no autorizado.";
+  if(status)status.textContent="⚠️ IP NO COINCIDE";
 }
 function unlockPage(){
   document.body.classList.remove("ip-locked");
@@ -122,7 +139,12 @@ function unlockPage(){
 function showSecret(){
   const text=document.getElementById("ipGateText");
   const secret=document.getElementById("secretArea");
-  if(text)text.textContent="Esta es la primera visita en este dispositivo. Ingresa tu clave secreta.";
+  const status=document.getElementById("ipStatus");
+  if(text)text.textContent="✓ IP autorizada. Esta es la primera visita en este dispositivo.";
+  if(status){
+    status.textContent="✓ IP COINCIDE";
+    status.style.color="#62e6ad";
+  }
   if(secret)secret.style.display="block";
   setTimeout(()=>document.getElementById("secretInput")?.focus(),50);
 }
@@ -143,6 +165,11 @@ function verifyFirstAccess(){
 async function checkAuthorizedIP(){
   if(accessCheckInProgress)return;
   accessCheckInProgress=true;
+  const detected=document.getElementById("ipDetected");
+  const authorized=document.getElementById("ipAuthorized");
+  const status=document.getElementById("ipStatus");
+  if(authorized)authorized.textContent=AUTHORIZED_IP;
+
   try{
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),8000);
@@ -151,24 +178,35 @@ async function checkAuthorizedIP(){
     if(!res.ok)throw new Error("No se pudo consultar la IP");
     const data=await res.json();
     currentIp=String(data.ip||"").trim();
-    if(!currentIp || currentIp!==AUTHORIZED_IP){
-      lockPage("Acceso bloqueado. Esta conexión no tiene la IP autorizada.");
+    if(detected)detected.textContent=currentIp||"No detectada";
+
+    if(!currentIp || AUTHORIZED_IP==="TU_IP_PUBLICA" || currentIp!==AUTHORIZED_IP){
+      lockPage(AUTHORIZED_IP==="TU_IP_PUBLICA"
+        ? "IP detectada. Copia esta IP para configurarla como autorizada."
+        : "Acceso bloqueado. Esta conexión no tiene la IP autorizada.");
+      if(status){
+        status.textContent=AUTHORIZED_IP==="TU_IP_PUBLICA"
+          ? "⚠️ FALTA CONFIGURAR LA IP"
+          : "⚠️ IP NO COINCIDE";
+        status.style.color="#ff9d9d";
+      }
       return;
     }
+
     if(localStorage.getItem(FIRST_ACCESS_KEY)==="1"){
       unlockPage();
     }else{
       showSecret();
     }
   }catch(err){
-    // Si no podemos comprobar la IP, cerramos por seguridad.
-    lockPage("No se pudo verificar la IP. Acceso bloqueado hasta poder comprobarla.");
+    if(detected)detected.textContent="ERROR: "+(err.message||"sin respuesta");
+    lockPage("No se pudo verificar la IP. Revisa la conexión a Internet.");
   }finally{
     accessCheckInProgress=false;
   }
 }
 function initIPSecurity(){
-  lockPage("Comprobando acceso…");
+  lockPage("Comprobando la IP pública de esta conexión…");
   checkAuthorizedIP();
   setInterval(checkAuthorizedIP,IP_CHECK_MS);
   document.addEventListener("visibilitychange",()=>{
