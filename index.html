@@ -82,7 +82,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <h1>🚚 Ruta 10 · Control de Cobros</h1>
 <div class="sub">1 cliente · Rutas <span id="routeLabel">224 y 224A</span> · 17/09/2026</div>
 <div class="summary">
-<div class="box"><b id="balance">Q24,298.29</b><span>balance a recolectar</span></div>
+<div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q24,298.29</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/1</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
@@ -220,10 +220,13 @@ const CLIENTS=[{"n":1,"c":"224-224A","name":"CLIENTE ÚNICO","incisos":["224","2
 const ROUTE_ID="224-224A";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
 const ROUTE_BALANCES={
-  "224-224A":24298.29
+  "224-224A":0
 };
-const ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
+let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
 const KEY="ruta224_224a_cobros_v1";
+const BALANCE_KEY="ruta224_224a_balance_v1";
+const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
+if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
 const NAMES=["Daniel","Hairo","Mynor"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 
@@ -238,6 +241,17 @@ function setBill(code,denom,value){
   state[code].cashOpen=true; saveState(); render();
 }
 function money(v){return "Q"+Number(v||0).toLocaleString("es-GT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function editRouteBalance(){
+  const current=ROUTE_BALANCE.toFixed(2);
+  const value=prompt("Ingresa el balance a recolectar para esta ruta (Q):",current);
+  if(value===null)return;
+  const normalized=String(value).replace(/,/g,"").trim();
+  const n=Number(normalized);
+  if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido, igual o mayor a Q0.00.");return;}
+  ROUTE_BALANCE=Math.round(n*100)/100;
+  localStorage.setItem(BALANCE_KEY,String(ROUTE_BALANCE));
+  render();
+}
 function render(){
  const q=document.getElementById("search").value.toLowerCase().trim();
  const list=document.getElementById("list"); list.innerHTML="";
