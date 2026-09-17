@@ -13,6 +13,7 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2
 h1{font-size:19px;margin:0 0 2px} .sub{font-size:11px;opacity:.85}
 .summary-toggle{width:100%;margin-top:6px;padding:7px 10px;background:#ffffff16;border:1px solid #ffffff30;border-radius:9px;color:white;font-size:11px;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .summary-toggle .arrow{font-size:13px;transition:transform .15s ease}
+.summary-toggle + .summary-toggle{margin-top:5px}
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:max-height .18s ease,opacity .12s ease}
 header.summary-open .summary{max-height:240px;opacity:1}
 header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
@@ -85,7 +86,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <header>
 <h1>🚚 Ruta 224 · Control de Cobros</h1>
 <div class="sub">1 cliente · Rutas <span id="routeLabel">224 y 224A</span> · 17/09/2026</div>
-<button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button>
+<button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary">
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q24,298.29</b><span>saldo por recolectar</span></div>
@@ -229,7 +230,31 @@ const KEY="ruta224_224a_cobros_v1";
 const BALANCE_KEY="ruta224_224a_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES=["Daniel","Hairo","Rulio"];
+const NAMES_KEY="ruta224_224a_cobradores_v1";
+let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
+if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
+function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
+function editCollectors(){
+  const updated=NAMES.map((name,i)=>{
+    const value=prompt(`Nombre del cobrador ${i+1}:`,name);
+    if(value===null) return name;
+    const clean=String(value).trim();
+    return clean||name;
+  });
+  if(updated.some((n,i)=>n!==NAMES[i])){
+    NAMES=updated;
+    saveNames();
+    // Actualizar también el nombre almacenado en registros existentes.
+    Object.values(state).forEach(s=>{
+      if(s && s.collector!=null){
+        const idx=Number(s.collector);
+        if(Number.isInteger(idx) && NAMES[idx]) s.collectorName=NAMES[idx];
+      }
+    });
+    saveState();
+    render();
+  }
+}
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state));}
