@@ -63,14 +63,14 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <div id="ipGate">
   <div id="ipGateBox">
     <div style="font-size:42px">🔐</div>
-    <h2>Ruta 10 · Diagnóstico de IP</h2>
+    <h2>Ruta 224 · Diagnóstico de IP</h2>
     <p id="ipGateText">Comprobando la IP pública de esta conexión…</p>
 
     <div class="ipLabel">IP detectada</div>
     <div id="ipDetected" class="ipValue">Consultando…</div>
 
     <div class="ipLabel">IP autorizada configurada</div>
-    <div id="ipAuthorized" class="ipValue">TU_IP_PUBLICA</div>
+    <div id="ipAuthorized" class="ipValue">170.150.28.60 · 181.174.93.143</div>
 
     <div id="ipStatus">Comprobando…</div>
 
@@ -83,7 +83,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 </div>
 </div>
 <header>
-<h1>🚚 Ruta 10 · Control de Cobros</h1>
+<h1>🚚 Ruta 224 · Control de Cobros</h1>
 <div class="sub">1 cliente · Rutas <span id="routeLabel">224 y 224A</span> · 17/09/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button>
 <div class="summary">
@@ -116,7 +116,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 // ===== CONFIGURACIÓN DE ACCESO =====
 // 1) Coloca aquí tu IP pública cuando sepamos cuál detecta tu teléfono.
 // 2) La clave de primer acceso es 2425.
-const AUTHORIZED_IP="170.150.28.60";
+const AUTHORIZED_IPS=["170.150.28.60","181.174.93.143"];
 const FIRST_ACCESS_SECRET="2425";
 const FIRST_ACCESS_KEY="ruta10_primer_acceso_autorizado_v1";
 const IP_CHECK_URL="https://api.ipify.org?format=json";
@@ -184,14 +184,11 @@ async function checkAuthorizedIP(){
     currentIp=String(data.ip||"").trim();
     if(detected)detected.textContent=currentIp||"No detectada";
 
-    if(!currentIp || AUTHORIZED_IP==="TU_IP_PUBLICA" || currentIp!==AUTHORIZED_IP){
-      lockPage(AUTHORIZED_IP==="TU_IP_PUBLICA"
-        ? "IP detectada. Copia esta IP para configurarla como autorizada."
-        : "Acceso bloqueado. Esta conexión no tiene la IP autorizada.");
+    const ipAutorizada=AUTHORIZED_IPS.includes(currentIp);
+    if(!currentIp || !ipAutorizada){
+      lockPage("Acceso bloqueado. Esta conexión no tiene una IP autorizada.");
       if(status){
-        status.textContent=AUTHORIZED_IP==="TU_IP_PUBLICA"
-          ? "⚠️ FALTA CONFIGURAR LA IP"
-          : "⚠️ IP NO COINCIDE";
+        status.textContent="⚠️ IP NO COINCIDE";
         status.style.color="#ff9d9d";
       }
       return;
@@ -221,7 +218,7 @@ function initIPSecurity(){
   });
 }
 
-const CLIENTS=[{"n":1,"c":"224-224A","name":"CLIENTE ÚNICO","incisos":["224","224A"]}];
+const CLIENTS=[{"n":1,"c":"224-224A","name":"TIENDA EL ESFUERZO","incisos":["224","224A"]}];
 const ROUTE_ID="224-224A";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
 const ROUTE_BALANCES={
