@@ -172,7 +172,7 @@ async function checkAuthorizedIP(){
   const detected=document.getElementById("ipDetected");
   const authorized=document.getElementById("ipAuthorized");
   const status=document.getElementById("ipStatus");
-  if(authorized)authorized.textContent=AUTHORIZED_IP;
+  if(authorized)authorized.textContent=AUTHORIZED_IPS.join(" · ");
 
   try{
     const controller=new AbortController();
