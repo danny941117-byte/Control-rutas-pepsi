@@ -87,7 +87,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <h1>🚚 Ruta 9 · Control de Cobros</h1>
 <div class="sub">35 clientes · Ruta <span id="routeLabel">9</span> · 17/09/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
-<div class="summary">
+<div class="summary"><div class="box"><b id="reportVta">Q27,092.87</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q24,298.29</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/1</b><span>cliente cobrado</span></div>
@@ -219,7 +219,8 @@ function initIPSecurity(){
   });
 }
 
-const CLIENTS=[{"n":1,"c":"0001309596","name":"ALIMENTOS LA BANDEJA","incisos":["9"]},{"n":2,"c":"0001052672","name":"TIENDA LA BENDICION","incisos":["9"]},{"n":3,"c":"0001223437","name":"TIENDA CARMENCITA II","incisos":["9"]},{"n":4,"c":"0001422254","name":"LUJO DE CAFE","incisos":["9"]},{"n":5,"c":"0001058451","name":"TIENDA Y SASTRERIA VERAPAZ","incisos":["9"]},{"n":6,"c":"0001052713","name":"TIENDA ROCA GRANDE","incisos":["9"]},{"n":7,"c":"0001052720","name":"TIENDA Y FERRETERIA OCCIDENTAL","incisos":["9"]},{"n":8,"c":"0001052699","name":"PANADERIA LOPEZ","incisos":["9"]},{"n":9,"c":"0001359408","name":"TIENDA LA FE","incisos":["9"]},{"n":10,"c":"0001318078","name":"TIENDA DIEGUITO","incisos":["9"]},{"n":11,"c":"0001235485","name":"TIENDA LA ESTRELLA","incisos":["9"]},{"n":12,"c":"0001421785","name":"MUNDO DE Q.3","incisos":["9"]},{"n":13,"c":"0001219769","name":"DEPOSITO SAN JOSE","incisos":["9"]},{"n":14,"c":"0001370582","name":"TIENDA YULY","incisos":["9"]},{"n":15,"c":"0001362041","name":"TIENDA FABIOLA 2","incisos":["9"]},{"n":16,"c":"0001063688","name":"TIENDA MARTITA","incisos":["9"]},{"n":17,"c":"0001421958","name":"LA FOGATA","incisos":["9"]},{"n":18,"c":"0001200268","name":"TIENDA CHATIO","incisos":["9"]},{"n":19,"c":"0001053933","name":"TIENDA LOS TRAVIESOS","incisos":["9"]},{"n":20,"c":"0001063691","name":"TIENDA PAOLITA","incisos":["9"]},{"n":21,"c":"0001053968","name":"TIENDA SAN MIGUEL","incisos":["9"]},{"n":22,"c":"0001287822","name":"DELI PANES","incisos":["9"]},{"n":23,"c":"0001329028","name":"COMERCIAL SUPER 24","incisos":["9"]},{"n":24,"c":"0001467114","name":"DOGOS BROS","incisos":["9"]},{"n":25,"c":"0001053948","name":"MINITIENDA","incisos":["9"]},{"n":26,"c":"0001139976","name":"RESTAURANTE BAR EL BAMBU","incisos":["9"]},{"n":27,"c":"0001236262","name":"TIENDA NATALY","incisos":["9"]},{"n":28,"c":"0001286200","name":"TIENDA LA SUPER SURTIDORA","incisos":["9"]},{"n":29,"c":"0001451935","name":"TIENDA Y TORTILLERIA HEIDY","incisos":["9"]},{"n":30,"c":"0001387838","name":"TIENDA JOSELYN","incisos":["9"]},{"n":31,"c":"0001204410","name":"TIENDA SULY","incisos":["9"]},{"n":32,"c":"0001053917","name":"TIENDA CHIU","incisos":["9"]},{"n":33,"c":"0001053923","name":"TIENDA LA MEDALLA MILAGROSA","incisos":["9"]},{"n":34,"c":"0001362008","name":"CENTRO FERRETERO","incisos":["9"]},{"n":35,"c":"0001052945","name":"TIENDA EL TESORO","incisos":["9"]}];
+const CLIENTS=[{"n":1,"c":"0001309596","name":"ALIMENTOS LA BANDEJA","incisos":["9"],"vta":697.1},{"n":2,"c":"0001052672","name":"TIENDA LA BENDICION","incisos":["9"],"vta":1337.58},{"n":3,"c":"0001223437","name":"TIENDA CARMENCITA II","incisos":["9"],"vta":1111.87},{"n":4,"c":"0001422254","name":"LUJO DE CAFE","incisos":["9"],"vta":475.32},{"n":5,"c":"0001058451","name":"TIENDA Y SASTRERIA VERAPAZ","incisos":["9"],"vta":207.6},{"n":6,"c":"0001052713","name":"TIENDA ROCA GRANDE","incisos":["9"],"vta":3204.13},{"n":7,"c":"0001052720","name":"TIENDA Y FERRETERIA OCCIDENTAL","incisos":["9"],"vta":835.54},{"n":8,"c":"0001052699","name":"PANADERIA LOPEZ","incisos":["9"],"vta":0.0},{"n":9,"c":"0001359408","name":"TIENDA LA FE","incisos":["9"],"vta":103.8},{"n":10,"c":"0001318078","name":"TIENDA DIEGUITO","incisos":["9"],"vta":454.84},{"n":11,"c":"0001235485","name":"TIENDA LA ESTRELLA","incisos":["9"],"vta":216.9},{"n":12,"c":"0001421785","name":"MUNDO DE Q.3","incisos":["9"],"vta":922.44},{"n":13,"c":"0001219769","name":"DEPOSITO SAN JOSE","incisos":["9"],"vta":6338.99},{"n":14,"c":"0001370582","name":"TIENDA YULY","incisos":["9"],"vta":423.62},{"n":15,"c":"0001362041","name":"TIENDA FABIOLA 2","incisos":["9"],"vta":709.13},{"n":16,"c":"0001063688","name":"TIENDA MARTITA","incisos":["9"],"vta":250.98},{"n":17,"c":"0001421958","name":"LA FOGATA","incisos":["9"],"vta":337.8},{"n":18,"c":"0001200268","name":"TIENDA CHATIO","incisos":["9"],"vta":545.14},{"n":19,"c":"0001053933","name":"TIENDA LOS TRAVIESOS","incisos":["9"],"vta":334.85},{"n":20,"c":"0001063691","name":"TIENDA PAOLITA","incisos":["9"],"vta":110.0},{"n":21,"c":"0001053968","name":"TIENDA SAN MIGUEL","incisos":["9"],"vta":685.75},{"n":22,"c":"0001287822","name":"DELI PANES","incisos":["9"],"vta":110.76},{"n":23,"c":"0001329028","name":"COMERCIAL SUPER 24","incisos":["9"],"vta":593.63},{"n":24,"c":"0001467114","name":"DOGOS BROS","incisos":["9"],"vta":163.0},{"n":25,"c":"0001053948","name":"MINITIENDA","incisos":["9"],"vta":243.76},{"n":26,"c":"0001139976","name":"RESTAURANTE BAR EL BAMBU","incisos":["9"],"vta":370.14},{"n":27,"c":"0001236262","name":"TIENDA NATALY","incisos":["9"],"vta":1750.73},{"n":28,"c":"0001286200","name":"TIENDA LA SUPER SURTIDORA","incisos":["9"],"vta":343.66},{"n":29,"c":"0001451935","name":"TIENDA Y TORTILLERIA HEIDY","incisos":["9"],"vta":86.25},{"n":30,"c":"0001387838","name":"TIENDA JOSELYN","incisos":["9"],"vta":903.68},{"n":31,"c":"0001204410","name":"TIENDA SULY","incisos":["9"],"vta":574.12},{"n":32,"c":"0001053917","name":"TIENDA CHIU","incisos":["9"],"vta":95.0},{"n":33,"c":"0001053923","name":"TIENDA LA MEDALLA MILAGROSA","incisos":["9"],"vta":0.0},{"n":34,"c":"0001362008","name":"CENTRO FERRETERO","incisos":["9"],"vta":137.1},{"n":35,"c":"0001052945","name":"TIENDA EL TESORO","incisos":["9"],"vta":585.0}];
+const REPORT_VTA_TOTAL=27092.87;
 const ROUTE_ID="9";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
 const ROUTE_BALANCES={"9":0};
@@ -287,7 +288,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div class="num">${x.n}</div><div><div class="name">${x.name}</div><div class="code">Incisos: ${(x.incisos||[]).join(" · ")} · ${x.c}</div></div>
+    <div class="row"><div class="num">${x.n}</div><div><div class="name">${x.name}</div><div class="code">Incisos: ${(x.incisos||[]).join(" · ")} · ${x.c}</div><div class="code" style="color:#0759c7;font-weight:800">VTA facturas: ${money(x.vta)} · Código: ${x.c}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
@@ -305,13 +306,13 @@ function render(){
       ${s.amount!=null && Math.abs(calcBills(s.bills)-Number(s.amount))>.009?`<div class="cash-warning">⚠️ Los billetes no coinciden con el cobro de ${money(s.amount)}.</div>`:(s.amount!=null?`<div class="cash-ok">✓ Los billetes coinciden con el cobro.</div>`:'')}
     </details>`:''}
     <div class="amount">
-      <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??''}" ${s.amount!=null?'disabled':''}>
+      <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??x.vta}" ${s.amount!=null?'disabled':''}>
       ${s.amount!=null?`<button class="edit" onclick="editClient('${x.c}')">Editar</button>`:`<button class="save" onclick="saveClient('${x.c}')">Guardar</button>`}
     </div>`;
    list.appendChild(card);
  });
  updateStats();
- document.getElementById("diagnostics").textContent=`Diagnóstico: ${Object.keys(state).length} registros guardados`;
+ document.getElementById("diagnostics").textContent=`Diagnóstico: ${Object.keys(state).length} registros guardados · VTA reporte Q27,092.87`;
 }
 function pick(code,i){
  if(!state[code]) state[code]={};
