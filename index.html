@@ -64,7 +64,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 <div id="ipGate">
   <div id="ipGateBox">
     <div style="font-size:42px">🔐</div>
-    <h2>Ruta 224 · Diagnóstico de IP</h2>
+    <h2>Ruta 9 · Diagnóstico de IP</h2>
     <p id="ipGateText">Comprobando la IP pública de esta conexión…</p>
 
     <div class="ipLabel">IP detectada</div>
@@ -84,8 +84,8 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 </div>
 </div>
 <header>
-<h1>🚚 Ruta 224 · Control de Cobros</h1>
-<div class="sub">1 cliente · Rutas <span id="routeLabel">224 y 224A</span> · 17/09/2026</div>
+<h1>🚚 Ruta 9 · Control de Cobros</h1>
+<div class="sub">35 clientes · Ruta <span id="routeLabel">9</span> · 17/09/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary">
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
@@ -119,7 +119,7 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 // 2) La clave de primer acceso es 2425.
 const AUTHORIZED_IPS=["170.150.28.60","181.174.93.143"];
 const FIRST_ACCESS_SECRET="2425";
-const FIRST_ACCESS_KEY="ruta10_primer_acceso_autorizado_v1";
+const FIRST_ACCESS_KEY="ruta9_primer_acceso_autorizado_v1";
 const IP_CHECK_URL="https://api.ipify.org?format=json";
 const IP_CHECK_MS=30000;
 let currentIp="";
@@ -219,18 +219,16 @@ function initIPSecurity(){
   });
 }
 
-const CLIENTS=[{"n":1,"c":"224-224A","name":"TIENDA EL ESFUERZO","incisos":["224","224A"]}];
-const ROUTE_ID="224-224A";
+const CLIENTS=[{"n":1,"c":"0001309596","name":"ALIMENTOS LA BANDEJA","incisos":["9"]},{"n":2,"c":"0001052672","name":"TIENDA LA BENDICION","incisos":["9"]},{"n":3,"c":"0001223437","name":"TIENDA CARMENCITA II","incisos":["9"]},{"n":4,"c":"0001422254","name":"LUJO DE CAFE","incisos":["9"]},{"n":5,"c":"0001058451","name":"TIENDA Y SASTRERIA VERAPAZ","incisos":["9"]},{"n":6,"c":"0001052713","name":"TIENDA ROCA GRANDE","incisos":["9"]},{"n":7,"c":"0001052720","name":"TIENDA Y FERRETERIA OCCIDENTAL","incisos":["9"]},{"n":8,"c":"0001052699","name":"PANADERIA LOPEZ","incisos":["9"]},{"n":9,"c":"0001359408","name":"TIENDA LA FE","incisos":["9"]},{"n":10,"c":"0001318078","name":"TIENDA DIEGUITO","incisos":["9"]},{"n":11,"c":"0001235485","name":"TIENDA LA ESTRELLA","incisos":["9"]},{"n":12,"c":"0001421785","name":"MUNDO DE Q.3","incisos":["9"]},{"n":13,"c":"0001219769","name":"DEPOSITO SAN JOSE","incisos":["9"]},{"n":14,"c":"0001370582","name":"TIENDA YULY","incisos":["9"]},{"n":15,"c":"0001362041","name":"TIENDA FABIOLA 2","incisos":["9"]},{"n":16,"c":"0001063688","name":"TIENDA MARTITA","incisos":["9"]},{"n":17,"c":"0001421958","name":"LA FOGATA","incisos":["9"]},{"n":18,"c":"0001200268","name":"TIENDA CHATIO","incisos":["9"]},{"n":19,"c":"0001053933","name":"TIENDA LOS TRAVIESOS","incisos":["9"]},{"n":20,"c":"0001063691","name":"TIENDA PAOLITA","incisos":["9"]},{"n":21,"c":"0001053968","name":"TIENDA SAN MIGUEL","incisos":["9"]},{"n":22,"c":"0001287822","name":"DELI PANES","incisos":["9"]},{"n":23,"c":"0001329028","name":"COMERCIAL SUPER 24","incisos":["9"]},{"n":24,"c":"0001467114","name":"DOGOS BROS","incisos":["9"]},{"n":25,"c":"0001053948","name":"MINITIENDA","incisos":["9"]},{"n":26,"c":"0001139976","name":"RESTAURANTE BAR EL BAMBU","incisos":["9"]},{"n":27,"c":"0001236262","name":"TIENDA NATALY","incisos":["9"]},{"n":28,"c":"0001286200","name":"TIENDA LA SUPER SURTIDORA","incisos":["9"]},{"n":29,"c":"0001451935","name":"TIENDA Y TORTILLERIA HEIDY","incisos":["9"]},{"n":30,"c":"0001387838","name":"TIENDA JOSELYN","incisos":["9"]},{"n":31,"c":"0001204410","name":"TIENDA SULY","incisos":["9"]},{"n":32,"c":"0001053917","name":"TIENDA CHIU","incisos":["9"]},{"n":33,"c":"0001053923","name":"TIENDA LA MEDALLA MILAGROSA","incisos":["9"]},{"n":34,"c":"0001362008","name":"CENTRO FERRETERO","incisos":["9"]},{"n":35,"c":"0001052945","name":"TIENDA EL TESORO","incisos":["9"]}];
+const ROUTE_ID="9";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={
-  "224-224A":0
-};
+const ROUTE_BALANCES={"9":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
-const KEY="ruta224_224a_cobros_v1";
-const BALANCE_KEY="ruta224_224a_balance_v1";
+const KEY="ruta9_cobros_v1";
+const BALANCE_KEY="ruta9_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES_KEY="ruta224_224a_cobradores_v1";
+const NAMES_KEY="ruta9_cobradores_v1";
 let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
 if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
@@ -346,7 +344,7 @@ function updateStats(){
  document.getElementById("remaining").textContent=money(remaining);
  document.getElementById("count").textContent=`${done}/1`;
  document.getElementById("total").textContent=money(total);
- document.getElementById("pending").textContent=Math.max(0,1-done);
+ document.getElementById("pending").textContent=Math.max(0,35-done);
 }
 document.getElementById("search").addEventListener("input",render);
 
@@ -377,7 +375,7 @@ function openSummary(){
  `<h3 style="margin:16px 0 6px">Por forma de pago</h3>`+
  payments.map(m=>`<div class="tot"><div><b>${m}</b><div class="small">${psums[m].count} clientes</div></div><b>${money(psums[m].total)}</b></div>`).join("")+
  `<div class="tot" style="background:#eef8f3"><b>TOTAL</b><b>${money(total)}</b></div>
- <p class="small">Cobrado: ${done} de 1 · Pendientes: ${Math.max(0,1-done)}</p>`;
+ <p class="small">Cobrado: ${done} de 35 · Pendientes: ${Math.max(0,35-done)}</p>`;
  document.getElementById("modal").classList.add("open");
 }
 
@@ -386,15 +384,15 @@ function exportCSV(){
  let rows=[["No.","Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
  CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
- const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_224_224A_Cobros.csv";a.click();
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_9_Cobros.csv";a.click();
 }
 function backup(){
- const blob=new Blob([JSON.stringify({route:"224 y 224A",date:"2026-09-17",state},null,2)],{type:"application/json"});
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_224_224A.json";a.click();
+ const blob=new Blob([JSON.stringify({route:"9",date:"2026-09-17",state},null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_9.json";a.click();
 }
 function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
- if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta 224 y 224A limpiada. El respaldo exportado queda en tu teléfono.");}
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta 9 limpiada. El respaldo exportado queda en tu teléfono.");}
 }
 window.addEventListener("error",e=>{
  const d=document.getElementById("diagnostics");
