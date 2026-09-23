@@ -15,10 +15,10 @@ h1{font-size:19px;margin:0 0 2px} .sub{font-size:11px;opacity:.85}
 .summary-toggle .arrow{font-size:13px;transition:transform .15s ease}
 .summary-toggle + .summary-toggle{margin-top:5px}
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:max-height .18s ease,opacity .12s ease}
-header.summary-open .summary{max-height:240px;opacity:1}
+header.summary-open .summary{max-height:calc(100vh - 125px);opacity:1;overflow-y:auto;padding-bottom:8px}
 header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
 .box{background:#ffffff18;border:1px solid #ffffff30;border-radius:9px;padding:6px;text-align:center}
-.box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85} .deposit-box{grid-column:1/-1;text-align:left}.deposit-control{display:flex;gap:6px;align-items:center;margin-top:6px}.deposit-control input{flex:1;min-width:0;padding:7px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:white;font-weight:800;font-size:14px}.deposit-control input::placeholder{color:#ffffff99}.deposit-control button{padding:7px 9px;background:#ffffff20;color:white;border:1px solid #ffffff35}
+.box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85} .deposit-box{grid-column:1/-1;text-align:left;min-height:82px}.deposit-control{display:flex;gap:6px;align-items:center;margin-top:6px}.deposit-control input{flex:1;min-width:0;padding:7px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:white;font-weight:800;font-size:14px}.deposit-control input::placeholder{color:#ffffff99}.deposit-box>span{display:block;font-size:12px!important;opacity:.95}.deposit-control button{padding:7px 9px;background:#ffffff20;color:white;border:1px solid #ffffff35}.deposit-control input:focus{outline:2px solid #ffffff55}.deposit-current{margin-top:6px;font-size:11px;color:#fff;opacity:.95}.deposit-current b{font-size:14px}
 .controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
 input.search{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:10px;font-size:14px;background:white}
 button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
@@ -58,7 +58,7 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/35</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
-<div class="box"><b id="pending">35</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales"><button onclick="saveDeposit()">Guardar</button></div></div>
+<div class="box"><b id="pending">35</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
 </div>
 </header>
 <div class="controls">
@@ -139,11 +139,45 @@ function editRouteBalance(){
   localStorage.setItem(BALANCE_KEY,String(ROUTE_BALANCE));
   render();
 }
-const DEPOSIT_KEY="ruta120209_depositado_v1";
-let DEPOSITADO=Number(localStorage.getItem(DEPOSIT_KEY)||0);
-if(!Number.isFinite(DEPOSITADO)||DEPOSITADO<0) DEPOSITADO=0;
-function saveDeposit(){const input=document.getElementById("depositInput");if(!input)return;const n=Number(String(input.value).replace(/,/g,"").trim());if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido, igual o mayor a Q0.00.");return;}DEPOSITADO=Math.round(n*100)/100;localStorage.setItem(DEPOSIT_KEY,String(DEPOSITADO));updateStats();}
-function updateDepositDisplay(){const input=document.getElementById("depositInput");if(input)input.value=DEPOSITADO?DEPOSITADO.toFixed(2):"";}
+const DEPOSIT_KEY=KEY+"_deposit_v2";
+const OLD_DEPOSIT_KEY=KEY+"_depositado_v1";
+function readDeposit(){
+  try{
+    let raw=localStorage.getItem(DEPOSIT_KEY);
+    if(raw===null) raw=localStorage.getItem(OLD_DEPOSIT_KEY);
+    const n=Number(raw);
+    return Number.isFinite(n)&&n>=0?n:0;
+  }catch(e){return 0;}
+}
+let DEPOSITADO=readDeposit();
+function persistDeposit(value){
+  DEPOSITADO=Math.round(Math.max(0,Number(value)||0)*100)/100;
+  try{localStorage.setItem(DEPOSIT_KEY,String(DEPOSITADO));}catch(e){
+    const d=document.getElementById("diagnostics");
+    if(d)d.textContent="Diagnóstico: no se pudo guardar Depositado en el almacenamiento local";
+  }
+}
+function saveDeposit(showMessage=false){
+  const input=document.getElementById("depositInput");
+  if(!input)return;
+  const normalized=String(input.value).replace(/,/g,"").trim();
+  const n=Number(normalized);
+  if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido, igual o mayor a Q0.00.");return;}
+  persistDeposit(n);
+  updateStats();
+  if(showMessage) alert("Depositado guardado: "+money(DEPOSITADO));
+}
+function updateDepositDisplay(){
+  const input=document.getElementById("depositInput");
+  if(input && document.activeElement!==input) input.value=DEPOSITADO?DEPOSITADO.toFixed(2):"";
+}
+
+function autoSaveDeposit(value){
+  const normalized=String(value).replace(/,/g,"").trim();
+  if(normalized===""){persistDeposit(0);updateStats();return;}
+  const n=Number(normalized);
+  if(Number.isFinite(n)&&n>=0) persistDeposit(n);
+}
 
 function render(){
  const q=document.getElementById("search").value.toLowerCase().trim();
@@ -183,7 +217,7 @@ function render(){
       const clientVtaSum=CLIENTS.reduce((a,x)=>a+(Number(x.vta)||0),0);
       const diff=REPORT_VTA_TOTAL-clientVtaSum;
       document.getElementById("diagnostics").textContent=
-        `Diagnóstico: ${Object.keys(state).length} registros guardados · VTA reporte ${money(REPORT_VTA_TOTAL)} · VTA clientes ${money(clientVtaSum)} · diferencia ${money(diff)}`;
+        `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · VTA reporte ${money(REPORT_VTA_TOTAL)} · VTA clientes ${money(clientVtaSum)} · diferencia ${money(diff)}`;
     }
 }
 function pick(code,i){
@@ -213,11 +247,16 @@ function editClient(code){ if(!state[code])return; delete state[code].amount; de
 function updateStats(){
  let done=0,total=0; Object.values(state).forEach(s=>{if(s.amount!=null){done++;total+=Number(s.amount)||0;}});
  const remaining=Math.max(0,ROUTE_BALANCE-total);
+ const efectivoActual=Math.max(0,total-DEPOSITADO);
  document.getElementById("balance").textContent=money(ROUTE_BALANCE);
  document.getElementById("remaining").textContent=money(remaining);
  document.getElementById("count").textContent=`${done}/${CLIENTS.length}`;
  document.getElementById("total").textContent=money(total);
+ document.getElementById("total").title="Efectivo actual: "+money(efectivoActual);
  document.getElementById("pending").textContent=Math.max(0,CLIENTS.length-done);
+ updateDepositDisplay();
+ const currentCash=document.getElementById("currentCash");
+ if(currentCash) currentCash.textContent=money(efectivoActual);
 }
 document.getElementById("search").addEventListener("input",render);
 
@@ -227,7 +266,7 @@ function toggleGeneralData(){
   if(!header)return;
   const open=!header.classList.contains("summary-open");
   header.classList.toggle("summary-open",open);
-  if(controls)controls.style.top=open?"210px":"64px";
+  if(controls)controls.style.top="64px";
 }
 
 function openSummary(){
@@ -260,12 +299,12 @@ function exportCSV(){
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120209_Cobros.csv";a.click();
 }
 function backup(){
- const blob=new Blob([JSON.stringify({route:"120209",date:"2026-09-23",state},null,2)],{type:"application/json"});
+ const blob=new Blob([JSON.stringify({route:"120209",date:"2026-09-23",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_120209.json";a.click();
 }
 function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
- if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta 120209 limpiada. El respaldo exportado queda en tu teléfono.");}
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);localStorage.removeItem(DEPOSIT_KEY);localStorage.removeItem(OLD_DEPOSIT_KEY);state={};DEPOSITADO=0;render();alert("Ruta 120209 limpiada. El respaldo exportado queda en tu teléfono.");}
 }
 window.addEventListener("error",e=>{
  const d=document.getElementById("diagnostics");
