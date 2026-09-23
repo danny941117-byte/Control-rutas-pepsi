@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b74ff">
 <link rel="manifest" href="manifest.json">
-<title>Ruta 10 · Control de Cobros</title>
+<title>Ruta 120209 · Control de Cobros</title>
 <style>
 :root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
@@ -46,48 +46,14 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 .small{font-size:11px;color:var(--muted)}
 .cash-details{margin:6px 0 8px;border:1px solid #dbe4ec;border-radius:10px;background:#f8fafc;overflow:hidden}.cash-details summary{cursor:pointer;padding:10px;font-size:12px;font-weight:800;color:#244158;list-style:none}.cash-details summary::-webkit-details-marker{display:none}.cash-details summary:after{content:"▾";float:right}.cash-details[open] summary:after{content:"▴"}.bills{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 8px 8px}.bill{display:flex;align-items:center;justify-content:space-between;gap:6px;background:white;border:1px solid #dbe4ec;border-radius:8px;padding:6px 7px;font-size:12px}.bill input{width:62px;padding:7px;border:1px solid #cbd7e3;border-radius:7px;text-align:center}.cash-total{padding:8px;border-top:1px solid #e1e8ef;text-align:right;font-weight:800;font-size:12px}.cash-warning{color:#b42318;font-size:11px;padding:0 8px 8px}.cash-ok{color:var(--ok);font-size:11px;padding:0 8px 8px}
 
-/* ===== ACCESO POR IP + CLAVE DE PRIMER ACCESO ===== */
-#ipGate{position:fixed;inset:0;z-index:99999;background:#071a2d;color:white;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
-#ipGateBox{width:100%;max-width:390px;background:#10283d;border:1px solid #ffffff22;border-radius:18px;padding:24px;box-shadow:0 18px 60px #0008}
-#ipGateBox h2{margin:0 0 8px;font-size:21px}#ipGateBox p{font-size:12px;opacity:.8;line-height:1.5;margin:0 0 14px}
-.ipLabel{text-align:left;font-size:11px;opacity:.7;margin-top:9px}
-.ipValue{font-family:monospace;font-size:15px;font-weight:800;background:#071a2d;border:1px solid #ffffff18;border-radius:9px;padding:10px;word-break:break-all}
-#ipStatus{margin:12px 0;font-size:13px;font-weight:800}
-#secretInput{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff33;background:#fff;color:#102131;font-size:16px;text-align:center}
-#secretBtn{width:100%;margin-top:10px;background:#0b74ff;color:#fff;padding:12px}
-#secretMsg{min-height:18px;margin-top:9px;color:#ffb4b4;font-size:12px}
-body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locked>footer,body.ip-locked>.modal,body.ip-locked>.diagnostics{display:none!important}
-
 </style>
 </head>
-<body class="ip-locked">
-<div id="ipGate">
-  <div id="ipGateBox">
-    <div style="font-size:42px">🔐</div>
-    <h2>Ruta 9 · Diagnóstico de IP</h2>
-    <p id="ipGateText">Comprobando la IP pública de esta conexión…</p>
-
-    <div class="ipLabel">IP detectada</div>
-    <div id="ipDetected" class="ipValue">Consultando…</div>
-
-    <div class="ipLabel">IP autorizada configurada</div>
-    <div id="ipAuthorized" class="ipValue">190.104.118.214</div>
-
-    <div id="ipStatus">Comprobando…</div>
-
-    <div id="secretArea" style="display:none">
-      <input id="secretInput" type="password" autocomplete="off" placeholder="Clave secreta">
-      <button id="secretBtn" onclick="verifyFirstAccess()">Autorizar este dispositivo</button>
-      <div id="secretMsg"></div>
-    </div>
-  </div>
-</div>
-</div>
+<body>
 <header>
-<h1>🚚 Ruta 9 · Control de Cobros</h1>
-<div class="sub"><span id="clientCountLabel">35</span> clientes · Ruta <span id="routeLabel">9</span> · 17/09/2026</div>
+<h1>🚚 Ruta 120209 · Control de Cobros</h1>
+<div class="sub"><span id="clientCountLabel">32</span> clientes · Ruta <span id="routeLabel">120209</span> · 23/09/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
-<div class="summary"><div class="box"><b id="reportVta">Q27,092.87</b><span>VTA total del reporte</span></div>
+<div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/35</b><span>cliente cobrado</span></div>
@@ -114,122 +80,17 @@ body.ip-locked>header,body.ip-locked>.controls,body.ip-locked>main,body.ip-locke
 
 <script>
 
-// ===== CONFIGURACIÓN DE ACCESO =====
-// 1) Coloca aquí tu IP pública cuando sepamos cuál detecta tu teléfono.
-// 2) La clave de primer acceso es 2425.
-const AUTHORIZED_IPS=["190.104.118.214"];
-const FIRST_ACCESS_SECRET="2425";
-const FIRST_ACCESS_KEY="ruta9_primer_acceso_autorizado_v1";
-const IP_CHECK_URL="https://api.ipify.org?format=json";
-const IP_CHECK_MS=30000;
-let currentIp="";
-let accessCheckInProgress=false;
-
-function lockPage(message){
-  document.body.classList.add("ip-locked");
-  const gate=document.getElementById("ipGate");
-  const text=document.getElementById("ipGateText");
-  const status=document.getElementById("ipStatus");
-  const secret=document.getElementById("secretArea");
-  if(gate)gate.style.display="flex";
-  if(secret)secret.style.display="none";
-  if(text)text.textContent=message||"Acceso no autorizado.";
-  if(status)status.textContent="⚠️ IP NO COINCIDE";
-}
-function unlockPage(){
-  document.body.classList.remove("ip-locked");
-  const gate=document.getElementById("ipGate");
-  if(gate)gate.style.display="none";
-}
-function showSecret(){
-  const text=document.getElementById("ipGateText");
-  const secret=document.getElementById("secretArea");
-  const status=document.getElementById("ipStatus");
-  if(text)text.textContent="✓ IP autorizada. Esta es la primera visita en este dispositivo.";
-  if(status){
-    status.textContent="✓ IP COINCIDE";
-    status.style.color="#62e6ad";
-  }
-  if(secret)secret.style.display="block";
-  setTimeout(()=>document.getElementById("secretInput")?.focus(),50);
-}
-function verifyFirstAccess(){
-  const input=document.getElementById("secretInput");
-  const msg=document.getElementById("secretMsg");
-  if(input.value===FIRST_ACCESS_SECRET){
-    localStorage.setItem(FIRST_ACCESS_KEY,"1");
-    input.value="";
-    if(msg)msg.textContent="";
-    unlockPage();
-  }else{
-    if(msg)msg.textContent="Clave incorrecta.";
-    input.value="";
-    input.focus();
-  }
-}
-async function checkAuthorizedIP(){
-  if(accessCheckInProgress)return;
-  accessCheckInProgress=true;
-  const detected=document.getElementById("ipDetected");
-  const authorized=document.getElementById("ipAuthorized");
-  const status=document.getElementById("ipStatus");
-  if(authorized)authorized.textContent=AUTHORIZED_IPS.join(" · ");
-
-  try{
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),8000);
-    const res=await fetch(IP_CHECK_URL,{cache:"no-store",signal:controller.signal});
-    clearTimeout(timeout);
-    if(!res.ok)throw new Error("No se pudo consultar la IP");
-    const data=await res.json();
-    currentIp=String(data.ip||"").trim();
-    if(detected)detected.textContent=currentIp||"No detectada";
-
-    const ipAutorizada=AUTHORIZED_IPS.includes(currentIp);
-    if(!currentIp || !ipAutorizada){
-      lockPage("Acceso bloqueado. Esta conexión no tiene una IP autorizada.");
-      if(status){
-        status.textContent="⚠️ IP NO COINCIDE";
-        status.style.color="#ff9d9d";
-      }
-      return;
-    }
-
-    if(localStorage.getItem(FIRST_ACCESS_KEY)==="1"){
-      unlockPage();
-    }else{
-      showSecret();
-    }
-  }catch(err){
-    if(detected)detected.textContent="ERROR: "+(err.message||"sin respuesta");
-    lockPage("No se pudo verificar la IP. Revisa la conexión a Internet.");
-  }finally{
-    accessCheckInProgress=false;
-  }
-}
-function initIPSecurity(){
-  lockPage("Comprobando la IP pública de esta conexión…");
-  checkAuthorizedIP();
-  setInterval(checkAuthorizedIP,IP_CHECK_MS);
-  document.addEventListener("visibilitychange",()=>{
-    if(!document.hidden)checkAuthorizedIP();
-  });
-  document.getElementById("secretInput")?.addEventListener("keydown",e=>{
-    if(e.key==="Enter")verifyFirstAccess();
-  });
-}
-
-const CLIENTS=[{"n":1,"c":"0001309596","name":"ALIMENTOS LA BANDEJA","incisos":["9"],"vta":714.23},{"n":2,"c":"0001052672","name":"TIENDA LA BENDICION","incisos":["9"],"vta":1337.58},{"n":3,"c":"0001223437","name":"TIENDA CARMENCITA II","incisos":["9"],"vta":1111.87},{"n":4,"c":"0001422254","name":"LUJO DE CAFE","incisos":["9"],"vta":475.32},{"n":5,"c":"0001058451","name":"TIENDA Y SASTRERIA VERAPAZ","incisos":["9"],"vta":207.6},{"n":6,"c":"0001052713","name":"TIENDA ROCA GRANDE","incisos":["9"],"vta":3426.77},{"n":7,"c":"0001052720","name":"TIENDA Y FERRETERIA OCCIDENTAL","incisos":["9"],"vta":835.54},{"n":8,"c":"0001052699","name":"PANADERIA LOPEZ","incisos":["9"],"vta":74.23},{"n":9,"c":"0001359408","name":"TIENDA LA FE","incisos":["9"],"vta":103.8},{"n":10,"c":"0001318078","name":"TIENDA DIEGUITO","incisos":["9"],"vta":454.84},{"n":11,"c":"0001235485","name":"TIENDA LA ESTRELLA","incisos":["9"],"vta":216.9},{"n":12,"c":"0001421785","name":"MUNDO DE Q.3","incisos":["9"],"vta":1242.58},{"n":13,"c":"0001219769","name":"DEPOSITO SAN JOSE","incisos":["9"],"vta":6338.99},{"n":14,"c":"0001370582","name":"TIENDA YULY","incisos":["9"],"vta":423.62},{"n":15,"c":"0001362041","name":"TIENDA FABIOLA 2","incisos":["9"],"vta":709.13},{"n":16,"c":"0001063688","name":"TIENDA MARTITA","incisos":["9"],"vta":250.98},{"n":17,"c":"0001421958","name":"LA FOGATA","incisos":["9"],"vta":337.8},{"n":18,"c":"0001200268","name":"TIENDA CHATIO","incisos":["9"],"vta":545.14},{"n":19,"c":"0001053933","name":"TIENDA LOS TRAVIESOS","incisos":["9"],"vta":334.85},{"n":20,"c":"0001063691","name":"TIENDA PAOLITA","incisos":["9"],"vta":110.0},{"n":21,"c":"0001053968","name":"TIENDA SAN MIGUEL","incisos":["9"],"vta":689.11},{"n":22,"c":"0001287822","name":"DELI PANES","incisos":["9"],"vta":110.76},{"n":23,"c":"0001329028","name":"COMERCIAL SUPER 24","incisos":["9"],"vta":593.63},{"n":24,"c":"0001467114","name":"DOGOS BROS","incisos":["9"],"vta":163.0},{"n":25,"c":"0001053948","name":"MINITIENDA","incisos":["9"],"vta":243.76},{"n":26,"c":"0001139976","name":"RESTAURANTE BAR EL BAMBU","incisos":["9"],"vta":344.01},{"n":27,"c":"0001236262","name":"TIENDA NATALY","incisos":["9"],"vta":1750.95},{"n":28,"c":"0001286200","name":"TIENDA LA SUPER SURTIDORA","incisos":["9"],"vta":343.68},{"n":29,"c":"0001451935","name":"TIENDA Y TORTILLERIA HEIDY","incisos":["9"],"vta":86.25},{"n":30,"c":"0001387838","name":"TIENDA JOSELYN","incisos":["9"],"vta":977.1},{"n":31,"c":"0001204410","name":"TIENDA SULY","incisos":["9"],"vta":574.12},{"n":32,"c":"0001053917","name":"TIENDA CHIU","incisos":["9"],"vta":1207.31},{"n":33,"c":"0001053923","name":"TIENDA LA MEDALLA MILAGROSA","incisos":["9"],"vta":0.0},{"n":34,"c":"0001362008","name":"CENTRO FERRETERO","incisos":["9"],"vta":137.1},{"n":35,"c":"0001052945","name":"TIENDA EL TESORO","incisos":["9"],"vta":620.32}];
-const REPORT_VTA_TOTAL=27092.87;
-const ROUTE_ID="9";
+const CLIENTS=[{"n":1,"c":"0001134676","name":"TIENDA LA CUADRA","incisos":["120209"],"vta":0.0},{"n":2,"c":"0001342789","name":"tienda nahomy","incisos":["120209"],"vta":0.0},{"n":3,"c":"0001338765","name":"ABARROTERIA LA BENDICION","incisos":["120209"],"vta":0.0},{"n":4,"c":"0001054626","name":"TIENDAGABY","incisos":["120209"],"vta":0.0},{"n":5,"c":"0001288567","name":"TIENDA LA SELECTA 2","incisos":["120209"],"vta":0.0},{"n":6,"c":"0001413941","name":"TIENDA REFUGIO DIVINO","incisos":["120209"],"vta":0.0},{"n":7,"c":"0001307942","name":"TIENDA Y DEPOSITO DE MAIZ","incisos":["120209"],"vta":0.0},{"n":8,"c":"0001452385","name":"ABARROTERIA GAEL","incisos":["120209"],"vta":0.0},{"n":9,"c":"0001178521","name":"PANADERIA SOFIA","incisos":["120209"],"vta":0.0},{"n":10,"c":"0001365112","name":"TIENDA JACKELINE","incisos":["120209"],"vta":0.0},{"n":11,"c":"0001054611","name":"TIENDA LA BODEGITA","incisos":["120209"],"vta":0.0},{"n":12,"c":"0001405995","name":"TIENDA LUX","incisos":["120209"],"vta":0.0},{"n":13,"c":"0001054602","name":"TIENDA LA BENDICION","incisos":["120209"],"vta":0.0},{"n":14,"c":"0001134674","name":"TIENDA MARIANA","incisos":["120209"],"vta":0.0},{"n":15,"c":"0001054703","name":"TIENDA YOLANDITA","incisos":["120209"],"vta":0.0},{"n":16,"c":"0001054704","name":"DISTRIBUIDORA SAN CRISTOBAL","incisos":["120209"],"vta":0.0},{"n":17,"c":"0001228150","name":"TIENDA FEVA","incisos":["120209"],"vta":0.0},{"n":18,"c":"0001318316","name":"PANADERIA DONA NESHITA","incisos":["120209"],"vta":0.0},{"n":19,"c":"0001244183","name":"GRAN DEPOSITO LA FE","incisos":["120209"],"vta":0.0},{"n":20,"c":"0001328800","name":"TIENDA SAN FELIPE","incisos":["120209"],"vta":0.0},{"n":21,"c":"0001055528","name":"TIENDA Y PANADERIA RIVERA","incisos":["120209"],"vta":0.0},{"n":22,"c":"0001386404","name":"TIENDA Y VARIEDADES YARETZY","incisos":["120209"],"vta":0.0},{"n":23,"c":"0001392476","name":"PERLA DORADA","incisos":["120209"],"vta":0.0},{"n":24,"c":"0001206005","name":"MINI ABARROTERIA EL CENTRO","incisos":["120209"],"vta":0.0},{"n":25,"c":"0001424559","name":"GRANJERO SAN CRISTOBAL VE 184","incisos":["120209"],"vta":0.0},{"n":26,"c":"0001432872","name":"PIZZA LA SICILIANA 814","incisos":["120209"],"vta":0.0},{"n":27,"c":"0001448927","name":"ESTRELLITA","incisos":["120209"],"vta":0.0},{"n":28,"c":"0001053742","name":"TIENDA MARIBEL","incisos":["120209"],"vta":0.0},{"n":29,"c":"0001441241","name":"TD LOS ABUELOS","incisos":["120209"],"vta":0.0},{"n":30,"c":"0001365233","name":"TIENDA LA BENDICION","incisos":["120209"],"vta":0.0},{"n":31,"c":"0001338754","name":"TIENDA JACKELINE 4","incisos":["120209"],"vta":0.0},{"n":32,"c":"0001247930","name":"TIENDA LA BENDICION","incisos":["120209"],"vta":0.0}];
+const REPORT_VTA_TOTAL=0;
+const ROUTE_ID="120209";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"9":0};
+const ROUTE_BALANCES={"120209":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
-const KEY="ruta9_cobros_v1";
-const BALANCE_KEY="ruta9_balance_v1";
+const KEY="ruta120209_cobros_v1";
+const BALANCE_KEY="ruta120209_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES_KEY="ruta9_cobradores_v1";
+const NAMES_KEY="ruta120209_cobradores_v1";
 let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
 if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
@@ -390,15 +251,15 @@ function exportCSV(){
  let rows=[["No.","Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
  CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
- const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_9_Cobros.csv";a.click();
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120209_Cobros.csv";a.click();
 }
 function backup(){
- const blob=new Blob([JSON.stringify({route:"9",date:"2026-09-17",state},null,2)],{type:"application/json"});
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_9.json";a.click();
+ const blob=new Blob([JSON.stringify({route:"120209",date:"2026-09-23",state},null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_120209.json";a.click();
 }
 function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
- if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta 9 limpiada. El respaldo exportado queda en tu teléfono.");}
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);state={};render();alert("Ruta 120209 limpiada. El respaldo exportado queda en tu teléfono.");}
 }
 window.addEventListener("error",e=>{
  const d=document.getElementById("diagnostics");
@@ -410,7 +271,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 document.querySelector(".controls").style.top="64px";
-initIPSecurity();
 render();
 </script>
 </body>
