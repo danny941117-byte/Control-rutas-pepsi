@@ -18,7 +18,7 @@ h1{font-size:19px;margin:0 0 2px} .sub{font-size:11px;opacity:.85}
 header.summary-open .summary{max-height:240px;opacity:1}
 header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
 .box{background:#ffffff18;border:1px solid #ffffff30;border-radius:9px;padding:6px;text-align:center}
-.box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85}
+.box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85} .deposit-box{grid-column:1/-1;text-align:left}.deposit-control{display:flex;gap:6px;align-items:center;margin-top:6px}.deposit-control input{flex:1;min-width:0;padding:7px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:white;font-weight:800;font-size:14px}.deposit-control input::placeholder{color:#ffffff99}.deposit-control button{padding:7px 9px;background:#ffffff20;color:white;border:1px solid #ffffff35}
 .controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
 input.search{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:10px;font-size:14px;background:white}
 button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
@@ -58,7 +58,7 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/35</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
-<div class="box"><b id="pending">35</b><span>pendiente</span></div>
+<div class="box"><b id="pending">35</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales"><button onclick="saveDeposit()">Guardar</button></div></div>
 </div>
 </header>
 <div class="controls">
@@ -139,6 +139,12 @@ function editRouteBalance(){
   localStorage.setItem(BALANCE_KEY,String(ROUTE_BALANCE));
   render();
 }
+const DEPOSIT_KEY="ruta120209_depositado_v1";
+let DEPOSITADO=Number(localStorage.getItem(DEPOSIT_KEY)||0);
+if(!Number.isFinite(DEPOSITADO)||DEPOSITADO<0) DEPOSITADO=0;
+function saveDeposit(){const input=document.getElementById("depositInput");if(!input)return;const n=Number(String(input.value).replace(/,/g,"").trim());if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido, igual o mayor a Q0.00.");return;}DEPOSITADO=Math.round(n*100)/100;localStorage.setItem(DEPOSIT_KEY,String(DEPOSITADO));updateStats();}
+function updateDepositDisplay(){const input=document.getElementById("depositInput");if(input)input.value=DEPOSITADO?DEPOSITADO.toFixed(2):"";}
+
 function render(){
  const q=document.getElementById("search").value.toLowerCase().trim();
  const list=document.getElementById("list"); list.innerHTML="";
