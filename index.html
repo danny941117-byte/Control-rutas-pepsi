@@ -80,11 +80,11 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 
 <script>
 
-const CLIENTS=[{"n":1,"c":"0001289485","name":"SUPER TIENDA EMILY","incisos":["120220"],"vta":220.5},{"n":2,"c":"0001196654","name":"SUPER WAS","incisos":["120220"],"vta":30.25},{"n":3,"c":"0001236228","name":"TIENDA MARINA","incisos":["120220"],"vta":52.5},{"n":4,"c":"0001386417","name":"ABARROTERIA LA BENDICION","incisos":["120220"],"vta":20.0},{"n":5,"c":"0001144740","name":"TIENDA ALICIA","incisos":["120220"],"vta":100.0},{"n":6,"c":"0001451264","name":"TIENDA JENIFER","incisos":["120220"],"vta":2.0}];
-const REPORT_VTA_TOTAL=425.25;
+const CLIENTS=[{"c":"0001289485","name":"SUPER TIENDA EMILY","incisos":["120220"],"vta":0},{"c":"0001196654","name":"SUPER WAS","incisos":["120220"],"vta":0},{"c":"0001236228","name":"TIENDA MARINA","incisos":["120220"],"vta":0},{"c":"0001386417","name":"ABARROTERIA LA BENDICION","incisos":["120220"],"vta":0},{"c":"0001144740","name":"TIENDA ALICIA","incisos":["120220"],"vta":0},{"c":"0001451264","name":"TIENDA JENIFER","incisos":["120220"],"vta":0}];
+const REPORT_VTA_TOTAL=0;
 const ROUTE_ID="120220";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120220":425.25};
+const ROUTE_BALANCES={"120220":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
 const KEY="ruta120220_cobros_v1";
 const BALANCE_KEY="ruta120220_balance_v1";
@@ -189,7 +189,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div class="num">${x.n}</div><div><div class="name">${x.name}</div><div class="code">Incisos: ${(x.incisos||[]).join(" · ")} · ${x.c}</div><div class="code" style="color:#0759c7;font-weight:800">VTA facturas: ${money(x.vta)} · Código: ${x.c}</div></div>
+    <div class="row"><div><div class="name">${x.name}</div><div class="code">Incisos: ${(x.incisos||[]).join(" · ")} · ${x.c}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
@@ -207,14 +207,14 @@ function render(){
       ${s.amount!=null && Math.abs(calcBills(s.bills)-Number(s.amount))>.009?`<div class="cash-warning">⚠️ Los billetes no coinciden con el cobro de ${money(s.amount)}.</div>`:(s.amount!=null?`<div class="cash-ok">✓ Los billetes coinciden con el cobro.</div>`:'')}
     </details>`:''}
     <div class="amount">
-      <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??x.vta}" ${s.amount!=null?'disabled':''}>
+      <input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad Q" value="${s.amount??0}" ${s.amount!=null?'disabled':''}>
       ${s.amount!=null?`<button class="edit" onclick="editClient('${x.c}')">Editar</button>`:`<button class="save" onclick="saveClient('${x.c}')">Guardar</button>`}
     </div>`;
    list.appendChild(card);
  });
  updateStats();
  {
-      const clientVtaSum=CLIENTS.reduce((a,x)=>a+(Number(x.vta)||0),0);
+      const clientVtaSum=0;
       const diff=REPORT_VTA_TOTAL-clientVtaSum;
       document.getElementById("diagnostics").textContent=
         `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · VTA reporte ${money(REPORT_VTA_TOTAL)} · VTA clientes ${money(clientVtaSum)} · diferencia ${money(diff)}`;
@@ -293,8 +293,8 @@ function openSummary(){
 
 function closeModal(){document.getElementById("modal").classList.remove("open");}
 function exportCSV(){
- let rows=[["No.","Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
- CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.n,x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
+ let rows=[["Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
+ CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120220_Cobros.csv";a.click();
 }
