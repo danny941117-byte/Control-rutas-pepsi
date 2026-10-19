@@ -46,9 +46,47 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 .small{font-size:11px;color:var(--muted)}
 .cash-details{margin:6px 0 8px;border:1px solid #dbe4ec;border-radius:10px;background:#f8fafc;overflow:hidden}.cash-details summary{cursor:pointer;padding:10px;font-size:12px;font-weight:800;color:#244158;list-style:none}.cash-details summary::-webkit-details-marker{display:none}.cash-details summary:after{content:"▾";float:right}.cash-details[open] summary:after{content:"▴"}.bills{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 8px 8px}.bill{display:flex;align-items:center;justify-content:space-between;gap:6px;background:white;border:1px solid #dbe4ec;border-radius:8px;padding:6px 7px;font-size:12px}.bill input{width:62px;padding:7px;border:1px solid #cbd7e3;border-radius:7px;text-align:center}.cash-total{padding:8px;border-top:1px solid #e1e8ef;text-align:right;font-weight:800;font-size:12px}.cash-warning{color:#b42318;font-size:11px;padding:0 8px 8px}.cash-ok{color:var(--ok);font-size:11px;padding:0 8px 8px}
 
+
+#authGate{display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#071a2d,#0b74ff);align-items:center;justify-content:center;padding:22px;color:white}
+body.auth-locked > :not(#authGate){display:none!important}
+body.auth-locked #authGate{display:flex}
+.auth-card{width:100%;max-width:360px;background:#ffffff12;border:1px solid #ffffff35;border-radius:18px;padding:24px;box-shadow:0 18px 50px #0004;text-align:center}
+.auth-card h2{margin:0 0 8px;font-size:22px}.auth-card p{margin:0 0 18px;font-size:13px;opacity:.9}
+.auth-card input{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff50;background:#fff;color:#102131;font-size:18px;text-align:center;letter-spacing:5px}
+.auth-card button{width:100%;margin-top:10px;padding:12px;background:#fff;color:#0759c7;font-size:15px}
+.auth-error{min-height:18px;margin-top:10px;font-size:12px;color:#ffe0e0}
+
 </style>
+
+<script>
+(function(){
+  const key = "ruta120210_auth_day";
+  const now = new Date();
+  const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  try {
+    if (localStorage.getItem(key) !== day) document.documentElement.dataset.authRequired = "1";
+  } catch(e) {
+    document.documentElement.dataset.authRequired = "1";
+  }
+  document.addEventListener("DOMContentLoaded", function(){
+    if (document.documentElement.dataset.authRequired === "1") document.body.classList.add("auth-locked");
+  });
+})();
+</script>
+
 </head>
 <body>
+
+<div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <form class="auth-card" onsubmit="return unlockRoute(event)">
+    <h2 id="authTitle">🔐 Ruta 120210 detalle</h2>
+    <p>Ingresa la contraseña para ver la información de la ruta.</p>
+    <input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus>
+    <button type="submit">Ingresar</button>
+    <div id="authError" class="auth-error" aria-live="polite"></div>
+  </form>
+</div>
+
 <header>
 <h1>Ruta 120210 detalle</h1>
 <div class="sub"><span id="clientCountLabel">6</span> clientes · Ruta <span id="routeLabel">120210</span> · 19/10/2026</div>
@@ -79,6 +117,26 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 <div id="diagnostics" class="diagnostics">Diagnóstico: OK</div>
 
 <script>
+
+
+const ROUTE_AUTH_PASSWORD = "2425";
+function unlockRoute(event){
+  event.preventDefault();
+  const input = document.getElementById("authPassword");
+  const error = document.getElementById("authError");
+  if(input.value !== ROUTE_AUTH_PASSWORD){
+    error.textContent = "Contraseña incorrecta. Inténtalo de nuevo.";
+    input.value = "";
+    input.focus();
+    return false;
+  }
+  const now = new Date();
+  const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+  try { localStorage.setItem("ruta120210_auth_day", day); } catch(e) {}
+  document.body.classList.remove("auth-locked");
+  document.getElementById("authGate").style.display = "none";
+  return false;
+}
 
 const CLIENTS=[{"c": "0001451251", "name": "TIENDA CHIQUIN", "incisos": ["120210"], "vta": 0}, {"c": "0001428577", "name": "SURTIDORA ABIGAIL", "incisos": ["120210"], "vta": 0}, {"c": "0001451610", "name": "TIENDA MARIA", "incisos": ["120210"], "vta": 0}, {"c": "0001452555", "name": "TIENDA FILOMENA", "incisos": ["120210"], "vta": 0}, {"c": "0001198075", "name": "TIENDA CAAL", "incisos": ["120210"], "vta": 0}, {"c": "0001198086", "name": "TIENDA EL CAMPITO", "incisos": ["120210"], "vta": 0}, {"c": "0001313360", "name": "TIENDA LOS GEMELITOS", "incisos": ["120210"], "vta": 0}, {"c": "0001278302", "name": "TIENDA OLGUITA", "incisos": ["120210"], "vta": 0}, {"c": "0001452569", "name": "TIENDA KIMBERLY", "incisos": ["120210"], "vta": 0}, {"c": "0001198078", "name": "TIENDA SEILA", "incisos": ["120210"], "vta": 0}, {"c": "0001451452", "name": "TIENDA DANNAE", "incisos": ["120210"], "vta": 0}, {"c": "0001236330", "name": "TIENDA ANA", "incisos": ["120210"], "vta": 0}, {"c": "0001452234", "name": "TIENDA Y PINCHAZO", "incisos": ["120210"], "vta": 0}, {"c": "0001451453", "name": "TIENDA EVELYN", "incisos": ["120210"], "vta": 0}, {"c": "0001452084", "name": "TIENDA LA BENDICION", "incisos": ["120210"], "vta": 0}, {"c": "0001451612", "name": "TIENDA JESSI", "incisos": ["120210"], "vta": 0}, {"c": "0001052924", "name": "TIENDA FAMILIA", "incisos": ["120210"], "vta": 0}, {"c": "0001452022", "name": "TIENDA LA BENDICION 2", "incisos": ["120210"], "vta": 0}, {"c": "0001452552", "name": "TIENDA EL CRUZE", "incisos": ["120210"], "vta": 0}, {"c": "0001452553", "name": "TIENDA EL PASEO", "incisos": ["120210"], "vta": 0}, {"c": "0001452314", "name": "TIENDA EL MOLINO", "incisos": ["120210"], "vta": 0}, {"c": "0001052929", "name": "TIENDA EL CRUCE", "incisos": ["120210"], "vta": 0}, {"c": "0001451185", "name": "TIENDA HERLINDA", "incisos": ["120210"], "vta": 0}, {"c": "0001451514", "name": "TIENDA AMAIDA", "incisos": ["120210"], "vta": 0}, {"c": "0001452002", "name": "LA SURTIDORA SAN JOSE", "incisos": ["120210"], "vta": 0}, {"c": "0001452480", "name": "TIENDA EL EXITO", "incisos": ["120210"], "vta": 0}, {"c": "0001452479", "name": "TIENDA EL AMIGO", "incisos": ["120210"], "vta": 0}, {"c": "0001451333", "name": "TIENDA ISRRAEL", "incisos": ["120210"], "vta": 0}, {"c": "0001451513", "name": "TIENDA BERTHA", "incisos": ["120210"], "vta": 0}, {"c": "0001451334", "name": "TIENDA GARCIA", "incisos": ["120210"], "vta": 0}, {"c": "0001199017", "name": "TIENDA JOSELIN AURA MARINA", "incisos": ["120210"], "vta": 0}, {"c": "0001200286", "name": "TIENDA MARTINA", "incisos": ["120210"], "vta": 0}, {"c": "0001052552", "name": "TIENDA NOHEMY", "incisos": ["120210"], "vta": 0}, {"c": "0001452346", "name": "TIENDA MAGDALENA", "incisos": ["120210"], "vta": 0}, {"c": "0001451302", "name": "TIENDA YAMILET", "incisos": ["120210"], "vta": 0}, {"c": "0001451478", "name": "TIENDA DUGLAS", "incisos": ["120210"], "vta": 0}, {"c": "0001451301", "name": "TIENDA CARLOTA", "incisos": ["120210"], "vta": 0}, {"c": "0001451666", "name": "TIENDA IRMA", "incisos": ["120210"], "vta": 0}, {"c": "0001368570", "name": "TIENDA EBEN EZER", "incisos": ["120210"], "vta": 0}, {"c": "0001451983", "name": "TIENDA NUEVA CONCEPCION", "incisos": ["120210"], "vta": 0}, {"c": "0001307342", "name": "TIENDA ALILIA RICARDO CHE BIN", "incisos": ["120210"], "vta": 0}, {"c": "0001252706", "name": "TIENDA J.M LUX", "incisos": ["120210"], "vta": 0}, {"c": "0001451520", "name": "TIENDA MANUE", "incisos": ["120210"], "vta": 0}, {"c": "0001170630", "name": "PANDERIA SHEYLA", "incisos": ["120210"], "vta": 0}, {"c": "0001332445", "name": "TIENDA YOLI", "incisos": ["120210"], "vta": 0}, {"c": "0001129323", "name": "TIENDA DINORA", "incisos": ["120210"], "vta": 0}, {"c": "0001170636", "name": "TIENDA ALIDA", "incisos": ["120210"], "vta": 0}, {"c": "0001243981", "name": "MARIA QUIB POP", "incisos": ["120210"], "vta": 0}, {"c": "0001311810", "name": "COMEDOR ADRIANA", "incisos": ["120210"], "vta": 0}, {"c": "0001266864", "name": "TIENDA NUEVO AMANECER", "incisos": ["120210"], "vta": 0}, {"c": "0001052646", "name": "TD. DOÑA LUCILA", "incisos": ["120210"], "vta": 0}, {"c": "0001406053", "name": "MARKET DON ROLANDO SONTE", "incisos": ["120210"], "vta": 0}, {"c": "0001052606", "name": "TIENDA DONALSON", "incisos": ["120210"], "vta": 0}, {"c": "0001352804", "name": "TIENDA LOS PRIMOS", "incisos": ["120210"], "vta": 0}, {"c": "0001451186", "name": "TIENDA EMMANUEL", "incisos": ["120210"], "vta": 0}, {"c": "0001236404", "name": "TIENDA BRAYAN", "incisos": ["120210"], "vta": 0}, {"c": "0001451332", "name": "TIENDA ARGUETA", "incisos": ["120210"], "vta": 0}, {"c": "0001451772", "name": "TIENDA MAX", "incisos": ["120210"], "vta": 0}, {"c": "0001198082", "name": "TIENDA LA CUESTA", "incisos": ["120210"], "vta": 0}, {"c": "0001198083", "name": "TIENDA LOS TUMULOS", "incisos": ["120210"], "vta": 0}, {"c": "0001426734", "name": "TD. THELMITA", "incisos": ["120210"], "vta": 0}, {"c": "0001339506", "name": "MARKET DON ROLANDO CEROLINDO", "incisos": ["120210"], "vta": 0}, {"c": "0001374803", "name": "TIENDA E INTERNET LA FE", "incisos": ["120210"], "vta": 0}, {"c": "0001452415", "name": "TIENDA EL SHADAI", "incisos": ["120210"], "vta": 0}, {"c": "0001344070", "name": "TIENDA SUPER MAX", "incisos": ["120210"], "vta": 0}, {"c": "0001451432", "name": "TIENDA SILVIA", "incisos": ["120210"], "vta": 0}, {"c": "0001254327", "name": "TIENDA LA Y", "incisos": ["120210"], "vta": 0}];
 const REPORT_VTA_TOTAL=0;
