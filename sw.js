@@ -1,5 +1,5 @@
 /* PWA Ruta 120210 · cache offline */
-const CACHE_NAME = "ruta120210-shell-v1";
+const CACHE_NAME = "ruta120210-shell-v2";
 const APP_SHELL = [
   "./",
   "./index.html",

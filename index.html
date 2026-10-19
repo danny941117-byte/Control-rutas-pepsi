@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b74ff">
 <link rel="manifest" href="manifest.json">
-<title>Ruta 120210 detalle</title>
+<title>Ruta 120210 · Control de Cobros</title>
 <style>
 :root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
 header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2d,#0b74ff);color:white;padding:9px 12px 8px;box-shadow:0 3px 12px #0002}
-h1{font-size:19px;margin:0 0 2px} .sub{font-size:11px;opacity:.85}
+h1{font-size:19px;margin:0 0 2px;overflow-wrap:anywhere}.title-line{display:flex;align-items:center;gap:7px}.title-edit{flex:none;padding:4px 7px;background:#ffffff20;color:#fff;border:1px solid #ffffff35;font-size:12px}.sub{font-size:11px;opacity:.85}
 .summary-toggle{width:100%;margin-top:6px;padding:7px 10px;background:#ffffff16;border:1px solid #ffffff30;border-radius:9px;color:white;font-size:11px;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .summary-toggle .arrow{font-size:13px;transition:transform .15s ease}
 .summary-toggle + .summary-toggle{margin-top:5px}
@@ -79,7 +79,7 @@ body.auth-locked #authGate{display:flex}
 
 <div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <form class="auth-card" onsubmit="return unlockRoute(event)">
-    <h2 id="authTitle">🔐 Ruta 120210 detalle</h2>
+    <h2 id="authTitle">🔐 Ruta 120210 · Control de Cobros</h2>
     <p>Ingresa la contraseña para ver la información de la ruta.</p>
     <input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus>
     <button type="submit">Ingresar</button>
@@ -88,8 +88,8 @@ body.auth-locked #authGate{display:flex}
 </div>
 
 <header>
-<h1>Ruta 120210 detalle</h1>
-<div class="sub"><span id="clientCountLabel">6</span> clientes · Ruta <span id="routeLabel">120210</span> · 19/10/2026</div>
+<div class="title-line"><h1 id="routeTitle">Ruta 120210 · Control de Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
+<div class="sub"><span id="clientCountLabel">6</span> clientes · <span id="routeLabel">Ruta 120210</span> · 19/10/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
@@ -120,6 +120,35 @@ body.auth-locked #authGate{display:flex}
 
 
 const ROUTE_AUTH_PASSWORD = "2425";
+const ROUTE_TITLE_KEY = "ruta120210_display_title_v1";
+const DEFAULT_ROUTE_TITLE = "Ruta 120210 · Control de Cobros";
+function cleanRouteTitle(value){
+  const title=String(value||"").trim().replace(/\s+/g," ").slice(0,70);
+  return title || DEFAULT_ROUTE_TITLE;
+}
+function applyRouteTitle(){
+  let title=DEFAULT_ROUTE_TITLE;
+  try { title=cleanRouteTitle(localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE); } catch(e) {}
+  document.title=title;
+  const heading=document.getElementById("routeTitle"); if(heading) heading.textContent=title;
+  const authHeading=document.getElementById("authTitle"); if(authHeading) authHeading.textContent="🔐 "+title;
+  const label=document.getElementById("routeLabel");
+  if(label){
+    const match=title.match(/\b(\d{6})\b/);
+    label.textContent=match ? "Ruta "+match[1] : title;
+  }
+  return title;
+}
+function editRouteTitle(){
+  const current=applyRouteTitle();
+  const value=prompt("Escribe el título que debe aparecer en la página y dentro de la PWA:",current);
+  if(value===null)return;
+  const title=cleanRouteTitle(value);
+  try { localStorage.setItem(ROUTE_TITLE_KEY,title); }
+  catch(e){ alert("No se pudo guardar el título en este navegador."); return; }
+  applyRouteTitle();
+  alert("Título actualizado. Para que el nombre debajo del icono de Android también cambie, el manifiesto de instalación debe llevar este mismo nombre y puede ser necesario reinstalar la PWA.");
+}
 function unlockRoute(event){
   event.preventDefault();
   const input = document.getElementById("authPassword");
@@ -354,15 +383,16 @@ function exportCSV(){
  let rows=[["Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
  CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
- const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120210_Cobros.csv";a.click();
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download=(applyRouteTitle().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ -]/g,"").trim().replace(/\s+/g,"_")||"Ruta")+"_Cobros.csv";a.click();
 }
 function backup(){
- const blob=new Blob([JSON.stringify({route:"120210",date:"2026-10-19",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_120210.json";a.click();
+ const routeTitle=applyRouteTitle();
+ const blob=new Blob([JSON.stringify({routeTitle,route:"120210",date:"2026-10-19",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(routeTitle.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ -]/g,"").trim().replace(/\s+/g,"_")||"Ruta")+"_Respaldo.json";a.click();
 }
 function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
- if(pin==="CERRAR"){localStorage.removeItem(KEY);localStorage.removeItem(DEPOSIT_KEY);localStorage.removeItem(OLD_DEPOSIT_KEY);state={};DEPOSITADO=0;render();alert("Ruta 120210 limpiada. El respaldo exportado queda en tu teléfono.");}
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);localStorage.removeItem(DEPOSIT_KEY);localStorage.removeItem(OLD_DEPOSIT_KEY);state={};DEPOSITADO=0;render();alert(applyRouteTitle()+" limpiada. El respaldo exportado queda en tu teléfono.");}
 }
 window.addEventListener("error",e=>{
  const d=document.getElementById("diagnostics");
@@ -374,6 +404,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 document.querySelector(".controls").style.top="64px";
+applyRouteTitle();
 render();
 </script>
 </body>
