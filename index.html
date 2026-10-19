@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b74ff">
 <link rel="manifest" href="manifest.json">
-<title>Ruta 235</title>
+<title>Ruta 120210 detalle</title>
 <style>
 :root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
@@ -50,13 +50,13 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 </head>
 <body>
 <header>
-<h1>Ruta 235</h1>
-<div class="sub"><span id="clientCountLabel">3</span> clientes · Ruta <span id="routeLabel">120235</span> · 25/09/2026</div>
+<h1>Ruta 120210 detalle</h1>
+<div class="sub"><span id="clientCountLabel">6</span> clientes · Ruta <span id="routeLabel">120210</span> · 19/10/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
-<div class="box"><b id="count">0/3</b><span>cliente cobrado</span></div>
+<div class="box"><b id="count">0/6</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
 <div class="box"><b id="pending">6</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
 </div>
@@ -80,17 +80,17 @@ footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted)
 
 <script>
 
-const CLIENTS=[{"c": "0001052707", "name": "ABARROTERIA LA ESTRELLA", "incisos": ["120235"], "vta": 0}, {"c": "0001408845", "name": "TIENDA UNIVERSAL", "incisos": ["120235"], "vta": 0}, {"c": "0001052607", "name": "SURTIDORA SHALOM MARCOTULIO TZ", "incisos": ["120235"], "vta": 0}];
+const CLIENTS=[{"c": "0001451251", "name": "TIENDA CHIQUIN", "incisos": ["120210"], "vta": 0}, {"c": "0001428577", "name": "SURTIDORA ABIGAIL", "incisos": ["120210"], "vta": 0}, {"c": "0001451610", "name": "TIENDA MARIA", "incisos": ["120210"], "vta": 0}, {"c": "0001452555", "name": "TIENDA FILOMENA", "incisos": ["120210"], "vta": 0}, {"c": "0001198075", "name": "TIENDA CAAL", "incisos": ["120210"], "vta": 0}, {"c": "0001198086", "name": "TIENDA EL CAMPITO", "incisos": ["120210"], "vta": 0}, {"c": "0001313360", "name": "TIENDA LOS GEMELITOS", "incisos": ["120210"], "vta": 0}, {"c": "0001278302", "name": "TIENDA OLGUITA", "incisos": ["120210"], "vta": 0}, {"c": "0001452569", "name": "TIENDA KIMBERLY", "incisos": ["120210"], "vta": 0}, {"c": "0001198078", "name": "TIENDA SEILA", "incisos": ["120210"], "vta": 0}, {"c": "0001451452", "name": "TIENDA DANNAE", "incisos": ["120210"], "vta": 0}, {"c": "0001236330", "name": "TIENDA ANA", "incisos": ["120210"], "vta": 0}, {"c": "0001452234", "name": "TIENDA Y PINCHAZO", "incisos": ["120210"], "vta": 0}, {"c": "0001451453", "name": "TIENDA EVELYN", "incisos": ["120210"], "vta": 0}, {"c": "0001452084", "name": "TIENDA LA BENDICION", "incisos": ["120210"], "vta": 0}, {"c": "0001451612", "name": "TIENDA JESSI", "incisos": ["120210"], "vta": 0}, {"c": "0001052924", "name": "TIENDA FAMILIA", "incisos": ["120210"], "vta": 0}, {"c": "0001452022", "name": "TIENDA LA BENDICION 2", "incisos": ["120210"], "vta": 0}, {"c": "0001452552", "name": "TIENDA EL CRUZE", "incisos": ["120210"], "vta": 0}, {"c": "0001452553", "name": "TIENDA EL PASEO", "incisos": ["120210"], "vta": 0}, {"c": "0001452314", "name": "TIENDA EL MOLINO", "incisos": ["120210"], "vta": 0}, {"c": "0001052929", "name": "TIENDA EL CRUCE", "incisos": ["120210"], "vta": 0}, {"c": "0001451185", "name": "TIENDA HERLINDA", "incisos": ["120210"], "vta": 0}, {"c": "0001451514", "name": "TIENDA AMAIDA", "incisos": ["120210"], "vta": 0}, {"c": "0001452002", "name": "LA SURTIDORA SAN JOSE", "incisos": ["120210"], "vta": 0}, {"c": "0001452480", "name": "TIENDA EL EXITO", "incisos": ["120210"], "vta": 0}, {"c": "0001452479", "name": "TIENDA EL AMIGO", "incisos": ["120210"], "vta": 0}, {"c": "0001451333", "name": "TIENDA ISRRAEL", "incisos": ["120210"], "vta": 0}, {"c": "0001451513", "name": "TIENDA BERTHA", "incisos": ["120210"], "vta": 0}, {"c": "0001451334", "name": "TIENDA GARCIA", "incisos": ["120210"], "vta": 0}, {"c": "0001199017", "name": "TIENDA JOSELIN AURA MARINA", "incisos": ["120210"], "vta": 0}, {"c": "0001200286", "name": "TIENDA MARTINA", "incisos": ["120210"], "vta": 0}, {"c": "0001052552", "name": "TIENDA NOHEMY", "incisos": ["120210"], "vta": 0}, {"c": "0001452346", "name": "TIENDA MAGDALENA", "incisos": ["120210"], "vta": 0}, {"c": "0001451302", "name": "TIENDA YAMILET", "incisos": ["120210"], "vta": 0}, {"c": "0001451478", "name": "TIENDA DUGLAS", "incisos": ["120210"], "vta": 0}, {"c": "0001451301", "name": "TIENDA CARLOTA", "incisos": ["120210"], "vta": 0}, {"c": "0001451666", "name": "TIENDA IRMA", "incisos": ["120210"], "vta": 0}, {"c": "0001368570", "name": "TIENDA EBEN EZER", "incisos": ["120210"], "vta": 0}, {"c": "0001451983", "name": "TIENDA NUEVA CONCEPCION", "incisos": ["120210"], "vta": 0}, {"c": "0001307342", "name": "TIENDA ALILIA RICARDO CHE BIN", "incisos": ["120210"], "vta": 0}, {"c": "0001252706", "name": "TIENDA J.M LUX", "incisos": ["120210"], "vta": 0}, {"c": "0001451520", "name": "TIENDA MANUE", "incisos": ["120210"], "vta": 0}, {"c": "0001170630", "name": "PANDERIA SHEYLA", "incisos": ["120210"], "vta": 0}, {"c": "0001332445", "name": "TIENDA YOLI", "incisos": ["120210"], "vta": 0}, {"c": "0001129323", "name": "TIENDA DINORA", "incisos": ["120210"], "vta": 0}, {"c": "0001170636", "name": "TIENDA ALIDA", "incisos": ["120210"], "vta": 0}, {"c": "0001243981", "name": "MARIA QUIB POP", "incisos": ["120210"], "vta": 0}, {"c": "0001311810", "name": "COMEDOR ADRIANA", "incisos": ["120210"], "vta": 0}, {"c": "0001266864", "name": "TIENDA NUEVO AMANECER", "incisos": ["120210"], "vta": 0}, {"c": "0001052646", "name": "TD. DOÑA LUCILA", "incisos": ["120210"], "vta": 0}, {"c": "0001406053", "name": "MARKET DON ROLANDO SONTE", "incisos": ["120210"], "vta": 0}, {"c": "0001052606", "name": "TIENDA DONALSON", "incisos": ["120210"], "vta": 0}, {"c": "0001352804", "name": "TIENDA LOS PRIMOS", "incisos": ["120210"], "vta": 0}, {"c": "0001451186", "name": "TIENDA EMMANUEL", "incisos": ["120210"], "vta": 0}, {"c": "0001236404", "name": "TIENDA BRAYAN", "incisos": ["120210"], "vta": 0}, {"c": "0001451332", "name": "TIENDA ARGUETA", "incisos": ["120210"], "vta": 0}, {"c": "0001451772", "name": "TIENDA MAX", "incisos": ["120210"], "vta": 0}, {"c": "0001198082", "name": "TIENDA LA CUESTA", "incisos": ["120210"], "vta": 0}, {"c": "0001198083", "name": "TIENDA LOS TUMULOS", "incisos": ["120210"], "vta": 0}, {"c": "0001426734", "name": "TD. THELMITA", "incisos": ["120210"], "vta": 0}, {"c": "0001339506", "name": "MARKET DON ROLANDO CEROLINDO", "incisos": ["120210"], "vta": 0}, {"c": "0001374803", "name": "TIENDA E INTERNET LA FE", "incisos": ["120210"], "vta": 0}, {"c": "0001452415", "name": "TIENDA EL SHADAI", "incisos": ["120210"], "vta": 0}, {"c": "0001344070", "name": "TIENDA SUPER MAX", "incisos": ["120210"], "vta": 0}, {"c": "0001451432", "name": "TIENDA SILVIA", "incisos": ["120210"], "vta": 0}, {"c": "0001254327", "name": "TIENDA LA Y", "incisos": ["120210"], "vta": 0}];
 const REPORT_VTA_TOTAL=0;
-const ROUTE_ID="120235";
+const ROUTE_ID="120210";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120235":0};
+const ROUTE_BALANCES={"120210":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
-const KEY="ruta120235_cobros_v1";
-const BALANCE_KEY="ruta120235_balance_v1";
+const KEY="ruta120210_cobros_v1";
+const BALANCE_KEY="ruta120210_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES_KEY="ruta120235_cobradores_v1";
+const NAMES_KEY="ruta120210_cobradores_v1";
 let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
 if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
@@ -296,15 +296,15 @@ function exportCSV(){
  let rows=[["Codigo","Cliente","Incisos","Cobrador","Forma de pago","Cantidad Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];
  CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.c,x.name,(x.incisos||[]).join(" / "),s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""]);});
  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
- const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120235_Cobros.csv";a.click();
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120210_Cobros.csv";a.click();
 }
 function backup(){
- const blob=new Blob([JSON.stringify({route:"120220",date:"2026-09-25",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
- const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_120235.json";a.click();
+ const blob=new Blob([JSON.stringify({route:"120210",date:"2026-10-19",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Respaldo_Ruta_120210.json";a.click();
 }
 function clearRoute(){
  const pin=prompt("Para limpiar la ruta escribe CERRAR:");
- if(pin==="CERRAR"){localStorage.removeItem(KEY);localStorage.removeItem(DEPOSIT_KEY);localStorage.removeItem(OLD_DEPOSIT_KEY);state={};DEPOSITADO=0;render();alert("Ruta 235 limpiada. El respaldo exportado queda en tu teléfono.");}
+ if(pin==="CERRAR"){localStorage.removeItem(KEY);localStorage.removeItem(DEPOSIT_KEY);localStorage.removeItem(OLD_DEPOSIT_KEY);state={};DEPOSITADO=0;render();alert("Ruta 120210 limpiada. El respaldo exportado queda en tu teléfono.");}
 }
 window.addEventListener("error",e=>{
  const d=document.getElementById("diagnostics");
