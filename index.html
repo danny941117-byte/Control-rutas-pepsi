@@ -57,6 +57,21 @@ body.auth-locked #authGate{display:flex}
 .auth-card button{width:100%;margin-top:10px;padding:12px;background:#fff;color:#0759c7;font-size:15px}
 .auth-error{min-height:18px;margin-top:10px;font-size:12px;color:#ffe0e0}
 
+
+/* Calculadora flotante */
+#calcFab{position:fixed;right:16px;bottom:76px;z-index:40;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0b74ff,#0750b5);color:#fff;font-size:25px;box-shadow:0 6px 20px #064ba855;border:2px solid #ffffff;display:grid;place-items:center}
+#calcPanel{display:none;position:fixed;right:12px;bottom:142px;z-index:41;width:min(320px,calc(100vw - 24px));background:#071a2d;color:#fff;border:1px solid #ffffff35;border-radius:18px;padding:14px;box-shadow:0 14px 40px #0005}
+#calcPanel.open{display:block}
+.calc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800}
+.calc-close{background:#ffffff20;color:#fff;padding:6px 10px;font-size:18px}
+#calcDisplay{width:100%;height:58px;margin-bottom:10px;border:1px solid #ffffff30;border-radius:10px;background:#ffffff12;color:#fff;text-align:right;padding:10px;font-size:25px;font-weight:800}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.calc-grid button{min-height:46px;background:#ffffff18;color:#fff;font-size:17px;padding:8px}
+.calc-grid button.calc-op{background:#0b74ff}
+.calc-grid button.calc-eq{background:#0a9b62}
+.calc-grid button.calc-clear{background:#8e3030}
+@media(max-width:380px){#calcFab{right:12px;bottom:72px;width:52px;height:52px}}
+
 </style>
 
 <script>
@@ -115,6 +130,23 @@ body.auth-locked #authGate{display:flex}
 <div class="sheet"><h2>Resumen por cobrador</h2><div id="summary"></div>
 <button class="primary" style="width:100%;margin-top:12px" onclick="closeModal()">Cerrar</button></div>
 </div>
+
+<button id="calcFab" type="button" aria-label="Abrir calculadora" title="Calculadora" onclick="toggleCalculator()">🧮</button>
+<section id="calcPanel" aria-label="Calculadora flotante">
+  <div class="calc-top"><span>🧮 Calculadora</span><button class="calc-close" type="button" onclick="toggleCalculator(false)" aria-label="Cerrar calculadora">×</button></div>
+  <input id="calcDisplay" value="0" readonly aria-label="Pantalla de calculadora">
+  <div class="calc-grid">
+    <button class="calc-clear" type="button" onclick="calcClear()">C</button>
+    <button type="button" onclick="calcBackspace()">⌫</button>
+    <button class="calc-op" type="button" onclick="calcInput('%')">%</button>
+    <button class="calc-op" type="button" onclick="calcInput('/')">÷</button>
+    <button type="button" onclick="calcInput('7')">7</button><button type="button" onclick="calcInput('8')">8</button><button type="button" onclick="calcInput('9')">9</button><button class="calc-op" type="button" onclick="calcInput('*')">×</button>
+    <button type="button" onclick="calcInput('4')">4</button><button type="button" onclick="calcInput('5')">5</button><button type="button" onclick="calcInput('6')">6</button><button class="calc-op" type="button" onclick="calcInput('-')">−</button>
+    <button type="button" onclick="calcInput('1')">1</button><button type="button" onclick="calcInput('2')">2</button><button type="button" onclick="calcInput('3')">3</button><button class="calc-op" type="button" onclick="calcInput('+')">+</button>
+    <button type="button" onclick="calcInput('0')">0</button><button type="button" onclick="calcInput('.')">.</button><button type="button" onclick="calcToggleSign()">±</button><button class="calc-eq" type="button" onclick="calcEquals()">=</button>
+  </div>
+</section>
+
 <div id="diagnostics" class="diagnostics">Diagnóstico: OK</div>
 
 <script>
@@ -415,6 +447,56 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(err => console.log("SW:", err));
   });
 }
+
+// Calculadora flotante independiente del registro de cobros.
+let calcExpression = "";
+let calcJustEvaluated = false;
+function toggleCalculator(force){
+  const panel=document.getElementById("calcPanel");
+  if(!panel)return;
+  const open=typeof force==="boolean"?force:!panel.classList.contains("open");
+  panel.classList.toggle("open",open);
+  if(open) calcDisplayUpdate();
+}
+function calcDisplayUpdate(){
+  const display=document.getElementById("calcDisplay");
+  if(display) display.value=calcExpression||"0";
+}
+function calcInput(value){
+  if(calcJustEvaluated && /[0-9.]/.test(value)) calcExpression="";
+  calcJustEvaluated=false;
+  if(value==="."){
+    const segment=calcExpression.split(/[+\-*/%]/).pop();
+    if(segment.includes("."))return;
+    if(!segment) value="0.";
+  }
+  if(/[+\-*/%]/.test(value)){
+    if(!calcExpression && value!=="-")return;
+    if(/[+\-*/%]$/.test(calcExpression)) calcExpression=calcExpression.slice(0,-1);
+  }
+  calcExpression+=value;
+  calcDisplayUpdate();
+}
+function calcClear(){calcExpression="";calcJustEvaluated=false;calcDisplayUpdate();}
+function calcBackspace(){calcExpression=calcExpression.slice(0,-1);calcJustEvaluated=false;calcDisplayUpdate();}
+function calcToggleSign(){
+  if(!calcExpression){calcExpression="-";calcDisplayUpdate();return;}
+  const match=calcExpression.match(/(\d*\.?\d+)$/);
+  if(!match)return;
+  const start=match.index, number=match[0];
+  calcExpression=calcExpression.slice(0,start)+(number.startsWith("-")?number.slice(1):"-"+number);
+  calcDisplayUpdate();
+}
+function calcEquals(){
+  if(!calcExpression || !/^[0-9+\-*/%.()\s]+$/.test(calcExpression))return;
+  try{
+    const result=Function('"use strict";return ('+calcExpression.replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')+')')();
+    if(!Number.isFinite(result))throw new Error("Resultado no válido");
+    calcExpression=String(Math.round((result+Number.EPSILON)*1e8)/1e8);
+    calcJustEvaluated=true;calcDisplayUpdate();
+  }catch(e){const display=document.getElementById("calcDisplay");if(display)display.value="Error";}
+}
+
 document.querySelector(".controls").style.top="64px";
 applyRouteTitle();
 render();
