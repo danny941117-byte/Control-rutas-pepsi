@@ -169,7 +169,7 @@ function unlockRoute(event){
   return false;
 }
 
-const CLIENTS=[{"c":"0001414999","name":"TIENDA BRAYAN","incisos":["120223"],"vta":0,"location":"Purulhá, Cobán"},{"c":"0001287724","name":"TIENDA RAMON","incisos":["120228"],"vta":0,"location":"Aldea Mulhá y Ruya, San Pedro Carchá"}];
+const CLIENTS=[{"c":"0001414999","name":"TIENDA BRAYAN","boxes":570,"incisos":["120223"],"vta":0,"location":"Purulhá, Cobán"},{"c":"0001287724","name":"TIENDA RAMON","boxes":608.5,"incisos":["120228"],"vta":0,"location":"Aldea Mulhá y Ruya, San Pedro Carchá"}];
 const REPORT_VTA_TOTAL=0;
 const ROUTE_ID="120223-120228";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
@@ -285,7 +285,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div><div class="name">${x.name}</div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
+    <div class="row"><div><div class="name">${x.name} <span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
