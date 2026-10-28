@@ -202,21 +202,21 @@ function unlockRoute(event){
 }
 
 const CLIENTS=[
-  {"c":"0001247930","name":"TIENDA LA BENDICION","boxes":33.000,"location":"SAN CRISTOBAL VERAPAZ, San Cristobal Verapaz","incisos":["120225"],"vta":0},
-  {"c":"0001364996","name":"ABARROTERIA PROVIDECIA 1","boxes":66.000,"location":"3A AVENIDA ZONA 4 SAN CRISTOBAL, San Cristobal Verapaz","incisos":["120225"],"vta":0},
-  {"c":"0001392476","name":"PERLA DORADA","boxes":42.167,"location":"ZONA 2 SAN CRISTOBAL A.V 1-013, San Cristobal Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001247930","name":"TIENDA LA BENDICION","boxes":33.000,"location":"SAN CRISTOBAL VERAPAZ, San Cristobal Verapaz","incisos":["120225"],"vta":1791.14},
+  {"c":"0001364996","name":"ABARROTERIA PROVIDECIA 1","boxes":66.000,"location":"3A AVENIDA ZONA 4 SAN CRISTOBAL, San Cristobal Verapaz","incisos":["120225"],"vta":5686.62},
+  {"c":"0001392476","name":"PERLA DORADA","boxes":42.167,"location":"ZONA 2 SAN CRISTOBAL A.V 1-013, San Cristobal Verapaz","incisos":["120225"],"vta":175.00},
   {"c":"0001258419","name":"TIENDA GUADALUPE","boxes":48.500,"location":"2AV 2-21 ZONA 1, San Cristobal Verapaz","incisos":["120225"],"vta":0},
-  {"c":"0001156738","name":"TIENDA MARY","boxes":125.000,"location":"B. EL CALVARIO SANTA CRUZ, Santa Cruz Verapaz","incisos":["120225"],"vta":0},
-  {"c":"0001055297","name":"TIENDA AMARILIS","boxes":185.000,"location":"COBAN, Tactic","incisos":["120225"],"vta":0},
-  {"c":"0001198003","name":"TIENDA LA BENDICION","boxes":60.000,"location":"ALDEA TAMPOC KM. 186.5 COBAN ALTA VERAPAZ, Tactic","incisos":["120225"],"vta":0}
+  {"c":"0001156738","name":"TIENDA MARY","boxes":125.000,"location":"B. EL CALVARIO SANTA CRUZ, Santa Cruz Verapaz","incisos":["120225"],"vta":8136.19},
+  {"c":"0001055297","name":"TIENDA AMARILIS","boxes":185.000,"location":"COBAN, Tactic","incisos":["120225"],"vta":13364.98},
+  {"c":"0001198003","name":"TIENDA LA BENDICION","boxes":60.000,"location":"ALDEA TAMPOC KM. 186.5 COBAN ALTA VERAPAZ, Tactic","incisos":["120225"],"vta":4019.25}
 ];
-const REPORT_VTA_TOTAL=0;
+const REPORT_VTA_TOTAL=33173.18;
 const ROUTE_ID="120225";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120225":0};
+const ROUTE_BALANCES={"120225":33173.18};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
 const KEY="ruta120225_cobros_v1";
-const BALANCE_KEY="ruta120225_balance_v1";
+const BALANCE_KEY="ruta120225_balance_v2";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
 const NAMES_KEY="ruta120225_cobradores_v1";
@@ -325,7 +325,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div><div class="name">${x.name} <span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
+    <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="due-amount" style="display:inline-block;padding:5px 8px;border-radius:8px;background:#e5f8ee;border:1px solid #91d8b5;color:#08744b;font-size:13px;font-weight:900;white-space:nowrap">${money(x.vta)}</span> <span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
