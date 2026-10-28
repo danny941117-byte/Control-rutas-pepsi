@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b74ff">
 <link rel="manifest" href="manifest.json">
-<title>Ruta 120224 · Control de Cobros</title>
+<title>Ruta 120225 · Control de Cobros</title>
 <style>
 :root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
 *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
@@ -76,7 +76,7 @@ body.auth-locked #authGate{display:flex}
 
 <script>
 (function(){
-  const key = "ruta120224_auth_day";
+  const key = "ruta120225_auth_day";
   const now = new Date();
   const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
   try {
@@ -95,7 +95,7 @@ body.auth-locked #authGate{display:flex}
 
 <div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <form class="auth-card" onsubmit="return unlockRoute(event)">
-    <h2 id="authTitle">🔐 Ruta 120224 · Control de Cobros</h2>
+    <h2 id="authTitle">🔐 Ruta 120225 · Control de Cobros</h2>
     <p>Ingresa la contraseña para ver la información de la ruta.</p>
     <input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus>
     <button type="submit">Ingresar</button>
@@ -104,8 +104,8 @@ body.auth-locked #authGate{display:flex}
 </div>
 
 <header>
-<div class="title-line"><h1 id="routeTitle">Ruta 120224 · Control de Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
-<div class="sub"><span id="clientCountLabel">2</span> clientes · <span id="routeLabel">Rutas 120223 y 120228</span> · 22/10/2026</div>
+<div class="title-line"><h1 id="routeTitle">Ruta 120225 · Control de Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
+<div class="sub"><span id="clientCountLabel">2</span> clientes · <span id="routeLabel">Rutas 120223 y 120228</span> · 28/10/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
@@ -153,8 +153,8 @@ body.auth-locked #authGate{display:flex}
 
 
 const ROUTE_AUTH_PASSWORD = "2425";
-const ROUTE_TITLE_KEY = "ruta120224_display_title_v1";
-const DEFAULT_ROUTE_TITLE = "Ruta 120224 · Control de Cobros";
+const ROUTE_TITLE_KEY = "ruta120225_display_title_v1";
+const DEFAULT_ROUTE_TITLE = "Ruta 120225 · Control de Cobros";
 function cleanRouteTitle(value){
   const title=String(value||"").trim().replace(/\s+/g," ").slice(0,70);
   return title || DEFAULT_ROUTE_TITLE;
@@ -195,32 +195,31 @@ function unlockRoute(event){
   }
   const now = new Date();
   const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
-  try { localStorage.setItem("ruta120224_auth_day", day); } catch(e) {}
+  try { localStorage.setItem("ruta120225_auth_day", day); } catch(e) {}
   document.body.classList.remove("auth-locked");
   document.getElementById("authGate").style.display = "none";
   return false;
 }
 
 const CLIENTS=[
- {"c":"0001451570","name":"TIENDA SOILA","boxes":0.250,"incisos":["120224"],"vta":0},
- {"c":"0001386327","name":"TIENDA ELVIA","boxes":0.250,"incisos":["120224"],"vta":0},
- {"c":"0001144602","name":"TIENDA OLGA ESTRELLA","boxes":14.000,"incisos":["120224"],"vta":0},
- {"c":"0001054895","name":"TIENDA LA ESTRELLITA","boxes":6.000,"incisos":["120224"],"vta":0},
- {"c":"0001132452","name":"TIENDA MARCELINO 2","boxes":0.250,"incisos":["120224"],"vta":0},
- {"c":"0001054905","name":"TIENDA ELDA","boxes":0.250,"incisos":["120224"],"vta":0},
- {"c":"0001373035","name":"ABARROTERIA LA BENDICION","boxes":350.000,"incisos":["120224"],"vta":0},
- {"c":"0001053221","name":"TIENDA ELIZABETH","boxes":200.000,"incisos":["120224"],"vta":0}
+  {"c":"0001247930","name":"TIENDA LA BENDICION","boxes":33.000,"location":"SAN CRISTOBAL VERAPAZ, San Cristobal Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001364996","name":"ABARROTERIA PROVIDECIA 1","boxes":66.000,"location":"3A AVENIDA ZONA 4 SAN CRISTOBAL, San Cristobal Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001392476","name":"PERLA DORADA","boxes":42.167,"location":"ZONA 2 SAN CRISTOBAL A.V 1-013, San Cristobal Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001258419","name":"TIENDA GUADALUPE","boxes":48.500,"location":"2AV 2-21 ZONA 1, San Cristobal Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001156738","name":"TIENDA MARY","boxes":125.000,"location":"B. EL CALVARIO SANTA CRUZ, Santa Cruz Verapaz","incisos":["120225"],"vta":0},
+  {"c":"0001055297","name":"TIENDA AMARILIS","boxes":185.000,"location":"COBAN, Tactic","incisos":["120225"],"vta":0},
+  {"c":"0001198003","name":"TIENDA LA BENDICION","boxes":60.000,"location":"ALDEA TAMPOC KM. 186.5 COBAN ALTA VERAPAZ, Tactic","incisos":["120225"],"vta":0}
 ];
 const REPORT_VTA_TOTAL=0;
-const ROUTE_ID="120224";
+const ROUTE_ID="120225";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120224":0};
+const ROUTE_BALANCES={"120225":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
-const KEY="ruta120224_cobros_v1";
-const BALANCE_KEY="ruta120224_balance_v1";
+const KEY="ruta120225_cobros_v1";
+const BALANCE_KEY="ruta120225_balance_v1";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES_KEY="ruta120224_cobradores_v1";
+const NAMES_KEY="ruta120225_cobradores_v1";
 let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
 if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
@@ -314,7 +313,7 @@ function render(){
  const list=document.getElementById("list"); list.innerHTML="";
  const filtered=CLIENTS.filter(x=>!q||x.name.toLowerCase().includes(q)||x.c.includes(q)||(x.incisos||[]).some(r=>r.includes(q)));
  if(!filtered.length){list.innerHTML='<div class="empty">No encontré clientes con esa búsqueda.</div>';return;}
- ["120224"].forEach(route=>{
+ ["120225"].forEach(route=>{
    const routeClients=filtered.filter(x=>(x.incisos||[]).includes(route));
    if(!routeClients.length)return;
    const heading=document.createElement("div");
@@ -440,7 +439,7 @@ function exportCSV(){
 }
 function backup(){
  const routeTitle=applyRouteTitle();
- const blob=new Blob([JSON.stringify({routeTitle,route:"120224",date:"2026-10-23",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
+ const blob=new Blob([JSON.stringify({routeTitle,route:"120225",date:"2026-10-28",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(routeTitle.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ -]/g,"").trim().replace(/\s+/g,"_")||"Ruta")+"_Respaldo.json";a.click();
 }
 function clearRoute(){
