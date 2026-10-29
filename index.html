@@ -5,11 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b74ff">
 <link rel="manifest" href="manifest.json">
-<title>Ruta 120225 · Control de Cobros</title>
+<title>Control de Rutas · Cobros</title>
 <style>
-:root{--blue:#0b74ff;--dark:#071a2d;--bg:#f3f7fb;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
-*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#102131}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#071a2d,#0b74ff);color:white;padding:9px 12px 8px;box-shadow:0 3px 12px #0002}
+:root{--blue:#0b8cff;--dark:#061426;--bg:transparent;--ok:#0a9b62;--muted:#66788a;--danger:#d83a3a}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:
+radial-gradient(ellipse at 12% 8%,rgba(0,140,255,.24),transparent 34%),
+radial-gradient(ellipse at 88% 30%,rgba(0,225,255,.13),transparent 30%),
+radial-gradient(ellipse at 50% 100%,rgba(20,76,180,.24),transparent 42%),
+linear-gradient(145deg,#061426 0%,#0a2038 48%,#071426 100%);background-attachment:fixed;color:#102131;min-height:100vh;position:relative}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(97,184,255,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(97,184,255,.065) 1px,transparent 1px);background-size:30px 30px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 90%)}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 50% 0%,transparent 0,rgba(0,0,0,.12) 75%);box-shadow:inset 0 0 90px rgba(0,0,0,.28)}
+body>*{position:relative;z-index:1}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(120deg,rgba(4,18,36,.97),rgba(5,76,143,.96),rgba(4,28,53,.97));color:white;padding:9px 12px 8px;box-shadow:0 8px 28px #0005;border-bottom:1px solid rgba(91,190,255,.35);backdrop-filter:blur(14px)}
 h1{font-size:19px;margin:0 0 2px;overflow-wrap:anywhere}.title-line{display:flex;align-items:center;gap:7px}.title-edit{flex:none;padding:4px 7px;background:#ffffff20;color:#fff;border:1px solid #ffffff35;font-size:12px}.sub{font-size:11px;opacity:.85}
 .summary-toggle{width:100%;margin-top:6px;padding:7px 10px;background:#ffffff16;border:1px solid #ffffff30;border-radius:9px;color:white;font-size:11px;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .summary-toggle .arrow{font-size:13px;transition:transform .15s ease}
@@ -19,13 +26,13 @@ header.summary-open .summary{max-height:calc(100vh - 125px);opacity:1;overflow-y
 header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
 .box{background:#ffffff18;border:1px solid #ffffff30;border-radius:9px;padding:6px;text-align:center}
 .box b{display:block;font-size:15px;line-height:1.1} .box span{font-size:9px;opacity:.85} .deposit-box{grid-column:1/-1;text-align:left;min-height:82px}.deposit-control{display:flex;gap:6px;align-items:center;margin-top:6px}.deposit-control input{flex:1;min-width:0;padding:7px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:white;font-weight:800;font-size:14px}.deposit-control input::placeholder{color:#ffffff99}.deposit-box>span{display:block;font-size:12px!important;opacity:.95}.deposit-control button{padding:7px 9px;background:#ffffff20;color:white;border:1px solid #ffffff35}.deposit-control input:focus{outline:2px solid #ffffff55}.deposit-current{margin-top:6px;font-size:11px;color:#fff;opacity:.95}.deposit-current b{font-size:14px}
-.controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:var(--bg);border-bottom:1px solid #dce5ee}
-input.search{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:10px;font-size:14px;background:white}
+.controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:rgba(5,20,39,.88);border-bottom:1px solid rgba(91,190,255,.22);backdrop-filter:blur(12px)}
+input.search{flex:1;padding:11px;border:1px solid #9dc9ed;border-radius:10px;font-size:14px;background:#f8fcff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}
 .btn{background:#e7eef6;color:#17324a} .primary{background:var(--blue);color:white}
-main{padding:8px 10px 70px;max-width:760px;margin:auto}
-.card{background:white;border:1px solid #dbe4ec;border-radius:13px;padding:11px;margin:8px 0;box-shadow:0 2px 7px #17324a0d}
-.route-section{margin:10px 0 14px}.route-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#dceaff;color:#074da8;border-left:4px solid var(--blue);border-radius:10px;font-weight:900;font-size:13px}.route-heading small{font-size:11px;font-weight:700;color:#375a80}
+main{padding:8px 10px 70px;max-width:760px;margin:auto;min-height:calc(100vh - 160px)}
+.card{background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(239,247,255,.97));border:1px solid rgba(105,190,255,.38);border-radius:14px;padding:11px;margin:10px 0;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.9);transition:transform .18s ease,box-shadow .18s ease}.card:active{transform:scale(.995)}
+.route-section{margin:10px 0 14px}.route-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(110deg,#dceeff,#c5e4ff);color:#074da8;border-left:4px solid var(--blue);border-radius:10px;font-weight:900;font-size:13px;box-shadow:0 4px 14px rgba(0,119,255,.16)}.route-heading small{font-size:11px;font-weight:700;color:#375a80}
 .row{display:flex;gap:9px;align-items:flex-start} .num{width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:#0759c7;display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
 .name{font-weight:800;font-size:14px;line-height:1.2} .code{font-size:11px;color:var(--muted);margin-top:2px}
 .status{margin-left:auto;font-size:11px;font-weight:800} .pending{color:#9a6a00} .saved{color:var(--ok)}
@@ -39,7 +46,7 @@ main{padding:8px 10px 70px;max-width:760px;margin:auto}
 .diagnostics{position:fixed;right:8px;bottom:58px;z-index:30;background:#071a2d;color:#d9f2ff;border-radius:8px;padding:5px 8px;font:10px monospace;opacity:.85}
 .amount{display:flex;gap:7px} .amount input{flex:1;padding:11px;border:1px solid #cbd7e3;border-radius:9px;font-size:16px}
 .amount .save{min-width:105px;background:var(--ok);color:white} .amount .edit{background:#ffe9e9;color:#a52323}
-footer{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #d7e1ea;padding:8px 10px;display:flex;gap:7px;z-index:20}
+footer{position:fixed;bottom:0;left:0;right:0;background:rgba(4,17,33,.94);border-top:1px solid rgba(91,190,255,.32);padding:8px 10px;display:flex;gap:7px;z-index:20;backdrop-filter:blur(14px);box-shadow:0 -8px 24px rgba(0,0,0,.22)}
 footer button{flex:1;font-size:12px} .empty{text-align:center;color:var(--muted);padding:30px}
 .modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center}
 .modal.open{display:flex} .sheet{background:white;width:100%;max-width:760px;border-radius:18px 18px 0 0;padding:18px;max-height:80vh;overflow:auto}
@@ -76,7 +83,7 @@ body.auth-locked #authGate{display:flex}
 
 <script>
 (function(){
-  const key = "ruta120225_auth_day";
+  const key = "control_rutas_auth_day";
   const now = new Date();
   const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
   try {
@@ -95,7 +102,7 @@ body.auth-locked #authGate{display:flex}
 
 <div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <form class="auth-card" onsubmit="return unlockRoute(event)">
-    <h2 id="authTitle">🔐 Ruta 120225 · Control de Cobros</h2>
+    <h2 id="authTitle">🔐 Control de Rutas · Cobros</h2>
     <p>Ingresa la contraseña para ver la información de la ruta.</p>
     <input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus>
     <button type="submit">Ingresar</button>
@@ -104,15 +111,15 @@ body.auth-locked #authGate{display:flex}
 </div>
 
 <header>
-<div class="title-line"><h1 id="routeTitle">Ruta 120225 · Control de Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
-<div class="sub"><span id="clientCountLabel">2</span> clientes · <span id="routeLabel">Rutas 120223 y 120228</span> · 28/10/2026</div>
+<div class="title-line"><h1 id="routeTitle">Control de Rutas · Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
+<div class="sub"><span id="clientCountLabel">3</span> clientes · <span id="routeLabel">Rutas 120220 · 120229</span> · 29/10/2026 · Cobro por definir en proceso aparte</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
-<div class="box"><b id="count">0/2</b><span>cliente cobrado</span></div>
+<div class="box"><b id="count">0/3</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
-<div class="box"><b id="pending">2</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
+<div class="box"><b id="pending">3</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
 </div>
 </header>
 <div class="controls">
@@ -153,8 +160,8 @@ body.auth-locked #authGate{display:flex}
 
 
 const ROUTE_AUTH_PASSWORD = "2425";
-const ROUTE_TITLE_KEY = "ruta120225_display_title_v1";
-const DEFAULT_ROUTE_TITLE = "Ruta 120225 · Control de Cobros";
+const ROUTE_TITLE_KEY = "control_rutas_display_title_v1";
+const DEFAULT_ROUTE_TITLE = "Control de Rutas · Cobros";
 function cleanRouteTitle(value){
   const title=String(value||"").trim().replace(/\s+/g," ").slice(0,70);
   return title || DEFAULT_ROUTE_TITLE;
@@ -167,8 +174,8 @@ function applyRouteTitle(){
   const authHeading=document.getElementById("authTitle"); if(authHeading) authHeading.textContent="🔐 "+title;
   const label=document.getElementById("routeLabel");
   if(label){
-    label.textContent=title.includes("120223") && title.includes("120228")
-      ? "Rutas 120223 · 120228"
+    label.textContent=title.includes("120220") && title.includes("120229")
+      ? "Rutas 120220 · 120229"
       : (title.match(/\b(\d{6})\b/) ? "Ruta "+title.match(/\b(\d{6})\b/)[1] : title);
   }
   return title;
@@ -195,31 +202,27 @@ function unlockRoute(event){
   }
   const now = new Date();
   const day = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
-  try { localStorage.setItem("ruta120225_auth_day", day); } catch(e) {}
+  try { localStorage.setItem("control_rutas_auth_day", day); } catch(e) {}
   document.body.classList.remove("auth-locked");
   document.getElementById("authGate").style.display = "none";
   return false;
 }
 
 const CLIENTS=[
-  {"c":"0001247930","name":"TIENDA LA BENDICION","boxes":33.000,"location":"SAN CRISTOBAL VERAPAZ, San Cristobal Verapaz","incisos":["120225"],"vta":1791.14},
-  {"c":"0001364996","name":"ABARROTERIA PROVIDECIA 1","boxes":66.000,"location":"3A AVENIDA ZONA 4 SAN CRISTOBAL, San Cristobal Verapaz","incisos":["120225"],"vta":5686.62},
-  {"c":"0001392476","name":"PERLA DORADA","boxes":42.167,"location":"ZONA 2 SAN CRISTOBAL A.V 1-013, San Cristobal Verapaz","incisos":["120225"],"vta":175.00},
-  {"c":"0001258419","name":"TIENDA GUADALUPE","boxes":48.500,"location":"2AV 2-21 ZONA 1, San Cristobal Verapaz","incisos":["120225"],"vta":0},
-  {"c":"0001156738","name":"TIENDA MARY","boxes":125.000,"location":"B. EL CALVARIO SANTA CRUZ, Santa Cruz Verapaz","incisos":["120225"],"vta":8136.19},
-  {"c":"0001055297","name":"TIENDA AMARILIS","boxes":185.000,"location":"COBAN, Tactic","incisos":["120225"],"vta":13364.98},
-  {"c":"0001198003","name":"TIENDA LA BENDICION","boxes":60.000,"location":"ALDEA TAMPOC KM. 186.5 COBAN ALTA VERAPAZ, Tactic","incisos":["120225"],"vta":4019.25}
-];
-const REPORT_VTA_TOTAL=33173.18;
-const ROUTE_ID="120225";
+  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":0},
+  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":0},
+  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":0}
+]
+const REPORT_VTA_TOTAL=0;
+const ROUTE_ID="120220-120229";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120225":33173.18};
+const ROUTE_BALANCES={"120220-120229":0};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
-const KEY="ruta120225_cobros_v1";
-const BALANCE_KEY="ruta120225_balance_v2";
+const KEY="control_rutas_cobros_v1";
+const BALANCE_KEY="control_rutas_balance_v2";
 const savedRouteBalance=localStorage.getItem(BALANCE_KEY);
 if(savedRouteBalance!==null && Number.isFinite(Number(savedRouteBalance))) ROUTE_BALANCE=Number(savedRouteBalance);
-const NAMES_KEY="ruta120225_cobradores_v1";
+const NAMES_KEY="control_rutas_cobradores_v1";
 let NAMES=JSON.parse(localStorage.getItem(NAMES_KEY)||'["Daniel","Hairo","Rulio"]');
 if(!Array.isArray(NAMES)||NAMES.length!==3) NAMES=["Daniel","Hairo","Rulio"];
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES));}
@@ -313,7 +316,7 @@ function render(){
  const list=document.getElementById("list"); list.innerHTML="";
  const filtered=CLIENTS.filter(x=>!q||x.name.toLowerCase().includes(q)||x.c.includes(q)||(x.incisos||[]).some(r=>r.includes(q)));
  if(!filtered.length){list.innerHTML='<div class="empty">No encontré clientes con esa búsqueda.</div>';return;}
- ["120225"].forEach(route=>{
+ ["120220","120229"].forEach(route=>{
    const routeClients=filtered.filter(x=>(x.incisos||[]).includes(route));
    if(!routeClients.length)return;
    const heading=document.createElement("div");
@@ -325,7 +328,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="due-amount" style="display:inline-block;padding:5px 8px;border-radius:8px;background:#e5f8ee;border:1px solid #91d8b5;color:#08744b;font-size:13px;font-weight:900;white-space:nowrap">${money(x.vta)}</span> <span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
+    <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
@@ -353,7 +356,7 @@ function render(){
  if(clientCountLabel)clientCountLabel.textContent=CLIENTS.length;
  updateStats();
  {
-      const clientVtaSum=0;
+      const clientVtaSum=CLIENTS.reduce((sum,x)=>sum+(Number(x.vta)||0),0);
       const diff=REPORT_VTA_TOTAL-clientVtaSum;
       document.getElementById("diagnostics").textContent=
         `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · VTA reporte ${money(REPORT_VTA_TOTAL)} · VTA clientes ${money(clientVtaSum)} · diferencia ${money(diff)}`;
@@ -439,7 +442,7 @@ function exportCSV(){
 }
 function backup(){
  const routeTitle=applyRouteTitle();
- const blob=new Blob([JSON.stringify({routeTitle,route:"120225",date:"2026-10-28",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
+ const blob=new Blob([JSON.stringify({routeTitle,route:"120220-120229",date:"2026-10-29",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(routeTitle.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ -]/g,"").trim().replace(/\s+/g,"_")||"Ruta")+"_Respaldo.json";a.click();
 }
 function clearRoute(){
