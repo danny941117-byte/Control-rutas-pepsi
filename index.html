@@ -32,7 +32,7 @@ button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:point
 .btn{background:#e7eef6;color:#17324a} .primary{background:var(--blue);color:white}
 main{padding:8px 10px 70px;max-width:760px;margin:auto;min-height:calc(100vh - 160px)}
 .card{background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(239,247,255,.97));border:1px solid rgba(105,190,255,.38);border-radius:14px;padding:11px;margin:10px 0;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.9);transition:transform .18s ease,box-shadow .18s ease}.card:active{transform:scale(.995)}
-.route-section{margin:10px 0 14px}.route-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(110deg,#dceeff,#c5e4ff);color:#074da8;border-left:4px solid var(--blue);border-radius:10px;font-weight:900;font-size:13px;box-shadow:0 4px 14px rgba(0,119,255,.16)}.route-heading small{font-size:11px;font-weight:700;color:#375a80}
+.invoice-list{margin:9px 0 4px;padding:9px 10px;background:#f1f7fc;border:1px solid #c9dff0;border-radius:10px}.invoice-list summary{cursor:pointer;font-size:12px;font-weight:900;color:#0759a8}.invoice-list table{width:100%;border-collapse:collapse;margin-top:7px;font-size:12px}.invoice-list th,.invoice-list td{padding:6px 4px;border-bottom:1px solid #d9e7f2;text-align:left}.invoice-list th:last-child,.invoice-list td:last-child{text-align:right;font-variant-numeric:tabular-nums}.invoice-list tfoot td{font-weight:900;border-top:2px solid #a9cce8;border-bottom:0;color:#063f78}.route-section{margin:10px 0 14px}.route-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(110deg,#dceeff,#c5e4ff);color:#074da8;border-left:4px solid var(--blue);border-radius:10px;font-weight:900;font-size:13px;box-shadow:0 4px 14px rgba(0,119,255,.16)}.route-heading small{font-size:11px;font-weight:700;color:#375a80}
 .row{display:flex;gap:9px;align-items:flex-start} .num{width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:#0759c7;display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
 .name{font-weight:800;font-size:14px;line-height:1.2} .code{font-size:11px;color:var(--muted);margin-top:2px}
 .status{margin-left:auto;font-size:11px;font-weight:800} .pending{color:#9a6a00} .saved{color:var(--ok)}
@@ -209,9 +209,9 @@ function unlockRoute(event){
 }
 
 const CLIENTS=[
-  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":23136.20},
-  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":5636.71},
-  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":114010.06}
+  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":23136.20,"facturas":[{"ref":"IF32-01644030","monto":13874.55},{"ref":"IF32-01644028","monto":3486.73},{"ref":"IF32-01644032","monto":2925.06},{"ref":"IF32-01644034","monto":2849.86}]},
+  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":5636.71,"facturas":[{"ref":"IF32-01644048","monto":1939.90},{"ref":"IF32-01644046","monto":631.88},{"ref":"IF32-01644036","monto":574.98},{"ref":"IF32-01644038","monto":574.98},{"ref":"IF32-01644042","monto":574.98},{"ref":"IF32-01644044","monto":574.98},{"ref":"IF32-01644040","monto":560.01},{"ref":"IF32-01644050","monto":205.00}]},
+  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":114010.06,"facturas":[{"ref":"IF32-01644166","monto":57498.00},{"ref":"IF32-01644168","monto":36827.20},{"ref":"IF32-01644164","monto":11599.65},{"ref":"IF32-01644162","monto":8085.21}]}
 ]
 const REPORT_VTA_TOTAL=0;
 const ROUTE_ID="120220-120229";
@@ -330,6 +330,7 @@ function render(){
    card.innerHTML=`
     <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span>${Number(x.vta)>0?`<span class="due-count" style="display:inline-block;margin-left:6px;padding:4px 8px;border-radius:7px;background:#fff0c2;color:#805500;border:1px solid #f0cf72;font-size:12px;font-weight:900;white-space:nowrap">Por cobrar: ${money(x.vta)}</span>`:""}</div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
+    ${Array.isArray(x.facturas)&&x.facturas.length?`<details class="invoice-list"><summary>🧾 Ver ${x.facturas.length} factura${x.facturas.length===1?"":"s"} · Total del código: ${money(x.vta)}</summary><table><thead><tr><th>Factura / Referencia</th><th>I. Vta. Con.</th></tr></thead><tbody>${x.facturas.map(f=>`<tr><td>${f.ref}</td><td>${money(f.monto)}</td></tr>`).join("")}</tbody><tfoot><tr><td>Total código ${x.c}</td><td>${money(x.facturas.reduce((sum,f)=>sum+Number(f.monto||0),0))}</td></tr></tfoot></table></details>`:""}
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
     </div>
