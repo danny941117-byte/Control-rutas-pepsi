@@ -114,7 +114,7 @@ body.auth-locked #authGate{display:flex}
 <div class="title-line"><h1 id="routeTitle">Control de Rutas · Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
 <div class="sub"><span id="clientCountLabel">3</span> clientes · <span id="routeLabel">Rutas 120220 · 120229</span> · 29/10/2026 · Cobro por definir en proceso aparte</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
-<div class="summary"><div class="box"><b id="reportVta">Q0.00</b><span>VTA total del reporte</span></div>
+<div class="summary"><div class="box"><b>Q28,772.91</b><span>Total ruta 120220</span></div><div class="box"><b>Q114,010.06</b><span>Total ruta 120229</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/3</b><span>cliente cobrado</span></div>
@@ -209,9 +209,9 @@ function unlockRoute(event){
 }
 
 const CLIENTS=[
-  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":0},
-  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":0},
-  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":0}
+  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":23136.20},
+  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":5636.71},
+  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":114010.06}
 ]
 const REPORT_VTA_TOTAL=0;
 const ROUTE_ID="120220-120229";
@@ -328,7 +328,7 @@ function render(){
    const card=document.createElement("div"); card.className="card";
    const selected=s.collector||"";
    card.innerHTML=`
-    <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
+    <div class="row"><div><div class="name" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">${x.name}<span class="box-count" style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span>${Number(x.vta)>0?`<span class="due-count" style="display:inline-block;margin-left:6px;padding:4px 8px;border-radius:7px;background:#fff0c2;color:#805500;border:1px solid #f0cf72;font-size:12px;font-weight:900;white-space:nowrap">Por cobrar: ${money(x.vta)}</span>`:""}</div><div class="code">Código: ${x.c}</div><div class="code">${x.location||""}</div></div>
     <div class="status ${s.amount!=null?'saved':'pending'}">${s.amount!=null?'✓ GUARDADO':'PENDIENTE'}</div></div>
     <div class="collectors">
       ${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?'selected':''}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}
@@ -356,10 +356,8 @@ function render(){
  if(clientCountLabel)clientCountLabel.textContent=CLIENTS.length;
  updateStats();
  {
-      const clientVtaSum=CLIENTS.reduce((sum,x)=>sum+(Number(x.vta)||0),0);
-      const diff=REPORT_VTA_TOTAL-clientVtaSum;
       document.getElementById("diagnostics").textContent=
-        `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · VTA reporte ${money(REPORT_VTA_TOTAL)} · VTA clientes ${money(clientVtaSum)} · diferencia ${money(diff)}`;
+        `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · Totales separados por ruta: 120220 ${money(28772.91)} · 120229 ${money(114010.06)}`;
     }
 }
 function pick(code,i){
