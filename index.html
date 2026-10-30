@@ -112,14 +112,14 @@ body.auth-locked #authGate{display:flex}
 
 <header>
 <div class="title-line"><h1 id="routeTitle">Control de Rutas · Cobros</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
-<div class="sub"><span id="clientCountLabel">3</span> clientes · <span id="routeLabel">Rutas 120220 · 120229</span> · 29/10/2026 · Cobro por definir en proceso aparte</div>
+<div class="sub"><span id="clientCountLabel">1</span> cliente · <span id="routeLabel">Ruta 120228</span> · 29/10/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
-<div class="summary"><div class="box"><b>Q28,772.91</b><span>Total ruta 120220</span></div><div class="box"><b>Q114,010.06</b><span>Total ruta 120229</span></div>
+<div class="summary"><div class="box"><b>1,875</b><span>Cajas físicas · Ruta 120228</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button class="balance-edit" onclick="editRouteBalance()">✏️ Editar</button></div>
 <div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div>
 <div class="box"><b id="count">0/3</b><span>cliente cobrado</span></div>
 <div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div>
-<div class="box"><b id="pending">3</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
+<div class="box"><b id="pending">1</b><span>pendiente</span></div><div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
 </div>
 </header>
 <div class="controls">
@@ -175,7 +175,7 @@ function applyRouteTitle(){
   const label=document.getElementById("routeLabel");
   if(label){
     label.textContent=title.includes("120220") && title.includes("120229")
-      ? "Rutas 120220 · 120229"
+      ? "Ruta 120228"
       : (title.match(/\b(\d{6})\b/) ? "Ruta "+title.match(/\b(\d{6})\b/)[1] : title);
   }
   return title;
@@ -209,14 +209,18 @@ function unlockRoute(event){
 }
 
 const CLIENTS=[
-  {"c":"0001052114","name":"COMERCIAL CUATRO CAMINOS","boxes":340,"location":"Barrio Santa María Cahabón, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":23136.20,"facturas":[{"ref":"IF32-01644030","monto":13874.55},{"ref":"IF32-01644028","monto":3486.73},{"ref":"IF32-01644032","monto":2925.06},{"ref":"IF32-01644034","monto":2849.86}]},
-  {"c":"0001386398","name":"TIENDA EBEN EZER","boxes":67,"location":"Cobán, Santa María Cahabón, Alta Verapaz","incisos":["120220"],"vta":5636.71,"facturas":[{"ref":"IF32-01644048","monto":1939.90},{"ref":"IF32-01644046","monto":631.88},{"ref":"IF32-01644036","monto":574.98},{"ref":"IF32-01644038","monto":574.98},{"ref":"IF32-01644042","monto":574.98},{"ref":"IF32-01644044","monto":574.98},{"ref":"IF32-01644040","monto":560.01},{"ref":"IF32-01644050","monto":205.00}]},
-  {"c":"0001287724","name":"TIENDA RAMON","boxes":2075,"location":"Aldea Mulhá y Ruya, San Pedro Carchá, Alta Verapaz","incisos":["120229"],"vta":114010.06,"facturas":[{"ref":"IF32-01644166","monto":57498.00},{"ref":"IF32-01644168","monto":36827.20},{"ref":"IF32-01644164","monto":11599.65},{"ref":"IF32-01644162","monto":8085.21}]}
+  {"c":"0001170657","name":"TIENDA MAGDA CAAL","boxes":1875,"location":"Aldea Cubil, calle principal, Cobán, Alta Verapaz","incisos":["120228"],"vta":119382.83,"facturas":[
+    {"ref":"1F32-01644160","monto":56497.80},
+    {"ref":"1F32-01644158","monto":24371.43},
+    {"ref":"1F32-01644156","monto":16249.32},
+    {"ref":"1F32-01644152","monto":12714.05},
+    {"ref":"1F32-01644154","monto":9550.23}
+  ]}
 ]
-const REPORT_VTA_TOTAL=0;
-const ROUTE_ID="120220-120229";
+const REPORT_VTA_TOTAL=119382.83;
+const ROUTE_ID="120228";
 // Balance objetivo por ruta. Para otra ruta, agrega/cambia su valor aquí.
-const ROUTE_BALANCES={"120220-120229":0};
+const ROUTE_BALANCES={"120228":119382.83};
 let ROUTE_BALANCE=Number(ROUTE_BALANCES[ROUTE_ID]||0);
 const KEY="control_rutas_cobros_v1";
 const BALANCE_KEY="control_rutas_balance_v2";
@@ -316,7 +320,7 @@ function render(){
  const list=document.getElementById("list"); list.innerHTML="";
  const filtered=CLIENTS.filter(x=>!q||x.name.toLowerCase().includes(q)||x.c.includes(q)||(x.incisos||[]).some(r=>r.includes(q)));
  if(!filtered.length){list.innerHTML='<div class="empty">No encontré clientes con esa búsqueda.</div>';return;}
- ["120220","120229"].forEach(route=>{
+ ["120228"].forEach(route=>{
    const routeClients=filtered.filter(x=>(x.incisos||[]).includes(route));
    if(!routeClients.length)return;
    const heading=document.createElement("div");
@@ -358,7 +362,7 @@ function render(){
  updateStats();
  {
       document.getElementById("diagnostics").textContent=
-        `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · Totales separados por ruta: 120220 ${money(28772.91)} · 120229 ${money(114010.06)}`;
+        `Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · Ruta 120228`;
     }
 }
 function pick(code,i){
@@ -441,7 +445,7 @@ function exportCSV(){
 }
 function backup(){
  const routeTitle=applyRouteTitle();
- const blob=new Blob([JSON.stringify({routeTitle,route:"120220-120229",date:"2026-10-29",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
+ const blob=new Blob([JSON.stringify({routeTitle,route:"120228",date:"2026-10-29",state,depositado:DEPOSITADO},null,2)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(routeTitle.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ -]/g,"").trim().replace(/\s+/g,"_")||"Ruta")+"_Respaldo.json";a.click();
 }
 function clearRoute(){
