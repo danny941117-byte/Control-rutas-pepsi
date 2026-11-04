@@ -109,6 +109,17 @@ const CLIENTS=[
 ];
 const KEY="control_rutas_cobros_v1",BALANCE_KEY=KEY+"_balance_120209",NAMES_KEY="control_rutas_cobradores_v1",DEPOSIT_KEY=KEY+"_deposit_120209";
 let state={};try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){state={}}
+
+// Cobros importados de la columna I. Vta. Con. (agrupados por código).
+// Los importes solo se inicializan cuando el cliente aún no tiene un cobro guardado.
+const IMPORTED_AMOUNTS = {"0001319863": 3297.28, "0001178521": 2052.14, "0001365112": 1420.76, "0001338754": 1047.75, "0001054626": 978.26, "0001139102": 1711.92, "0001054703": 922.53, "0001448927": 885.4, "0001405995": 745.9, "0001284390": 715.69, "0001054704": 676.78, "0001055528": 747.7, "0001410311": 598.65, "0001413941": 587.88, "0001386404": 593.88, "0001288567": 455.1, "0001328800": 358.44, "0001228150": 497.74, "0001206005": 236.37, "0001258419": 382.0, "0001215388": 190.52, "0001366342": 163.0, "0001054602": 122.0, "0001134674": 104.54, "0001053742": 101.1, "0001132744": 0.0, "0001432872": 0.0, "0001448662": 0.0, "0001424559": 0.0, "0001392476": 0.0};
+for (const [code, amount] of Object.entries(IMPORTED_AMOUNTS)) {
+  if (!state[code] || state[code].amount == null) {
+    state[code] = { ...(state[code] || {}), amount, imported: true };
+  }
+}
+try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+
 let NAMES=["Daniel","Hairo","Rulio"];try{const n=JSON.parse(localStorage.getItem(NAMES_KEY)||"null");if(Array.isArray(n)&&n.length===3)NAMES=n}catch(e){}
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state))}
 function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES))}
