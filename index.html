@@ -45,13 +45,13 @@ footer{position:fixed;bottom:0;left:0;right:0;background:rgba(4,17,33,.94);borde
 <div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle"><form class="auth-card" onsubmit="return unlockRoute(event)"><h2 id="authTitle">🔐 Control de Rutas · 120209</h2><p>Ingresa la contraseña para ver la información de la ruta.</p><input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus><button type="submit">Ingresar</button><div id="authError" class="auth-error" aria-live="polite"></div></form></div>
 <header>
 <div class="title-line"><h1 id="routeTitle">Control de Rutas · 120209</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
-<div class="sub"><span id="clientCountLabel">39</span> clientes · <span id="routeLabel">Ruta 120209</span> · 04/11/2026</div>
+<div class="sub"><span id="clientCountLabel">30</span> clientes · <span id="routeLabel">Ruta 120209</span> · 04/11/2026</div>
 <button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
 <div class="summary">
-<div class="box"><b>315.450</b><span>Cajas físicas · Ruta 120209</span></div>
+<div class="box"><b>322.082</b><span>Cajas físicas · Ruta 120209</span></div>
 <div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button onclick="editRouteBalance()" style="margin-top:5px;padding:4px 7px">✏️ Editar</button></div>
-<div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div><div class="box"><b id="count">0/39</b><span>clientes cobrados</span></div>
-<div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div><div class="box"><b id="pending">39</b><span>pendientes</span></div>
+<div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div><div class="box"><b id="count">0/30</b><span>clientes cobrados</span></div>
+<div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div><div class="box"><b id="pending">30</b><span>pendientes</span></div>
 <div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
 </div></header>
 <div class="controls"><input id="search" class="search" placeholder="Buscar cliente o código…"><button class="btn" onclick="openSummary()">📊 Resumen</button></div>
@@ -66,185 +66,115 @@ footer{position:fixed;bottom:0;left:0;right:0;background:rgba(4,17,33,.94);borde
 <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button class="calc-op" onclick="calcInput('+')">+</button>
 <button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcToggleSign()">±</button><button class="calc-eq" onclick="calcEquals()">=</button>
 </div></section>
+<div id="diagnostics" class="diagnostics">Diagnóstico: OK</div>
 <script>
 "use strict";
-const ROUTE_AUTH_PASSWORD = "2425";
-const ROUTE_TITLE_KEY = "control_rutas_display_title";
-const DEFAULT_ROUTE_TITLE = "Control de Rutas · 120209";
-const ROUTE_ID = "120209";
-const ROUTE_DATE = "2026‑11‑04";
-const TOTAL_BOXES = 315.450;
-
-const CLIENTS = [
-  {c:"0001052884",name:"TIENDA SAN JOSE 2",place:"Cobán",boxes:0},
-  {c:"0001386646",name:"RESTAURANTE VALENTINA",place:"Cobán",boxes:0},
-  {c:"0001052675",name:"LIBRERÍA EL ÉXITO",place:"Cobán",boxes:0},
-  {c:"0001055430",name:"TIENDA LA SURTIDORA",place:"Cobán",boxes:0},
-  {c:"0001177030",name:"TIENDA EL ESTADIO VERAPAZ",place:"Cobán",boxes:0},
-  {c:"0001422201",name:"TD JAMAI",place:"Cobán",boxes:0},
-  {c:"0001052668",name:"TIENDA JERUSALEN",place:"Cobán",boxes:0},
-  {c:"0001052671",name:"TIENDA ESTRELLA 2 MIGUEL LUS",place:"Cobán",boxes:0},
-  {c:"0001052672",name:"TIENDA LA BENDICIÓN MANUEL TZU",place:"Cobán",boxes:0},
-  {c:"0001223437",name:"TIENDA CARMENCITA II",place:"Cobán",boxes:0},
-  {c:"0001422254",name:"LUJO DE CAFÉ",place:"Cobán",boxes:0},
-  {c:"0001052718",name:"COMIDAS EL CHURRASQUITO",place:"Cobán",boxes:0},
-  {c:"0001058451",name:"TIENDA Y SASTRERÍA VERAPAZ WEN",place:"Cobán",boxes:0},
-  {c:"0001388708",name:"TIENDA LUNA",place:"Cobán",boxes:0},
-  {c:"0001318078",name:"TIENDA DIEGUITO 2",place:"Cobán",boxes:0},
-  {c:"0001235485",name:"TIENDA LA ESTRELLA",place:"Cobán",boxes:0},
-  {c:"0001200273",name:"TIENDA AZUCENA",place:"Cobán",boxes:0},
-  {c:"0001362041",name:"TIENDA FABIOLA 2 MANUEL CASTRO",place:"Cobán",boxes:0},
-  {c:"0001326112",name:"ALIMENTOS TÍPICOS DE LA REGIÓN",place:"Cobán",boxes:0},
-  {c:"0001053948",name:"MINITIENDA",place:"Cobán",boxes:0},
-  {c:"0001287933",name:"VARIEDADES ESPERANZA",place:"Cobán",boxes:0},
-  {c:"0001286200",name:"TIENDA LA SURTIDORA",place:"Cobán",boxes:0},
-  {c:"0001352066",name:"TIENDA ESPERANSITA 2 ESPERANZA",place:"Cobán",boxes:0},
-  {c:"0001413378",name:"LAS PICONAS",place:"Cobán",boxes:0},
-  {c:"0001424126",name:"TIENDA LA BENDICIÓN",place:"Cobán",boxes:0},
-  {c:"0001052769",name:"TIENDA LA VENTANITA",place:"Cobán",boxes:0},
-  {c:"0001452472",name:"COMERCIAL ADONAI",place:"Cobán",boxes:0},
-  {c:"0001287822",name:"DELI PANES",place:"Cobán",boxes:0},
-  {c:"0001053968",name:"TIENDA SAN MIGUEL",place:"Cobán",boxes:0},
-  {c:"0001316905",name:"RESTAURANTE SANIGUA",place:"Cobán",boxes:0},
-  {c:"0001053933",name:"TIENDA LOS TRAVIESOS CARLOTA C",place:"Cobán",boxes:0},
-  {c:"0001200268",name:"TIENDA CHATIO 2",place:"Cobán",boxes:0},
-  {c:"0001421958",name:"LA FOGATA",place:"Cobán",boxes:0},
-  {c:"0001373815",name:"SUPER 24 CARCHA 2",place:"Carcha",boxes:0},
-  {c:"0001370582",name:"TIENDA YULY",place:"Carcha",boxes:0},
-  {c:"0001421785",name:"MUNDO DE Q.3",place:"Carcha",boxes:0},
-  {c:"0001329221",name:"INVERSIONES CESI SOCIEDAD ANÓNIMA",place:"Carcha",boxes:0},
-  {c:"0001290683",name:"ABARROTES EL ALFARERO",place:"Carcha",boxes:0},
-  {c:"0001424553",name:"GRANJERO COBÁN 519",place:"Cobán",boxes:0}
+const ROUTE_AUTH_PASSWORD="2425",ROUTE_TITLE_KEY="control_rutas_display_title_v1",DEFAULT_ROUTE_TITLE="Control de Rutas · 120209";
+function cleanRouteTitle(v){return String(v||"").trim().replace(/\s+/g," ").slice(0,70)||DEFAULT_ROUTE_TITLE}
+function applyRouteTitle(){let t=DEFAULT_ROUTE_TITLE;try{t=cleanRouteTitle(localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE)}catch(e){}document.title=t;const h=document.getElementById("routeTitle");if(h)h.textContent=t;const a=document.getElementById("authTitle");if(a)a.textContent="🔐 "+t;const l=document.getElementById("routeLabel");if(l)l.textContent="Ruta 120209";return t}
+function editRouteTitle(){const v=prompt("Escribe el título que debe aparecer en la página y dentro de la PWA:",applyRouteTitle());if(v===null)return;try{localStorage.setItem(ROUTE_TITLE_KEY,cleanRouteTitle(v))}catch(e){alert("No se pudo guardar el título.");return}applyRouteTitle();alert("Título actualizado. Para cambiar el nombre de la PWA instalada, actualiza el manifiesto y reinstálala si es necesario.")}
+function unlockRoute(e){e.preventDefault();const i=document.getElementById("authPassword"),err=document.getElementById("authError");if(i.value!==ROUTE_AUTH_PASSWORD){err.textContent="Contraseña incorrecta. Inténtalo de nuevo.";i.value="";i.focus();return false}const n=new Date(),d=n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0");try{localStorage.setItem("control_rutas_auth_day",d)}catch(e){}document.body.classList.remove("auth-locked");document.getElementById("authGate").style.display="none";return false}
+const ROUTE_ID="120209",ROUTE_DATE="2026-11-04",TOTAL_BOXES=322.082;
+const CLIENTS=[
+{c:"0001288567",name:"TIENDA LA SELECTA 2",boxes:9,location:"Zona 1, 2 avenida"},
+{c:"0001413941",name:"TIENDA REFUGIO DIVINO",boxes:7,location:"Barrio Santa Ana"},
+{c:"0001178521",name:"PANADERÍA SOFÍA",boxes:24.165,location:"San Cristóbal"},
+{c:"0001258419",name:"TIENDA GUADALUPE",boxes:12,location:"Zona 1, 2 avenida"},
+{c:"0001054626",name:"TIENDA GABY",boxes:7,location:"Parque Central, zona 4"},
+{c:"0001424559",name:"GRANJERO SAN CRISTÓBAL VE 184",boxes:13,location:"Zona 4, 0 calle"},
+{c:"0001432872",name:"PIZZA LA SICILIANA 814",boxes:2,location:"Zona 4, 0 calle"},
+{c:"0001206005",name:"MINI ABARROTERÍA EL CENTRO",boxes:6,location:"Barrio Santa Ana, zona 1"},
+{c:"0001386404",name:"TIENDA Y VARIEDADES YARETZY",boxes:5.5,location:"Zona 1, 0 calle"},
+{c:"0001392476",name:"PERLA DORADA",boxes:0,location:"Zona 2"},
+{c:"0001328800",name:"TIENDA SAN FELIPE",boxes:4.5,location:"Zona 4, 2 avenida"},
+{c:"0001366342",name:"CAFETERÍA DOÑA MARY",boxes:3.501,location:"Zona 4, 2 avenida"},
+{c:"0001139102",name:"ROBERTO CAAL YAT",boxes:11,location:"Barrio San Felipe"},
+{c:"0001132744",name:"ABARROTERÍA EL BUEN PRECIO",boxes:36,location:"Zona 4, 7a calle"},
+{c:"0001134674",name:"TIENDA MARIANA",boxes:2.5,location:"Barrio San Felipe"},
+{c:"0001319863",name:"DISTRIBUIDORA LA FE",boxes:52,location:"Zona 4, 3a calle"},
+{c:"0001215388",name:"POLLOLANDIA SAN CRISTÓBAL",boxes:2.5,location:"Barrio San Sebastián, zona 3"},
+{c:"0001228150",name:"TIENDA FEVA",boxes:5.5,location:"3a calle, San Cristóbal"},
+{c:"0001054704",name:"DISTRIBUIDORA SAN CRISTÓBAL",boxes:9,location:"San Cristóbal"},
+{c:"0001054703",name:"TIENDA YOLANDITA",boxes:14.917,location:"Barrio San Sebastián"},
+{c:"0001405995",name:"TIENDA LUX",boxes:7.5,location:"San Cristóbal Verapaz"},
+{c:"0001054602",name:"TIENDA LA BENDICIÓN",boxes:1.5,location:"Barrio San Sebastián, zona 1"},
+{c:"0001448662",name:"DOMINOS EXPRESS 14142",boxes:21,location:"Zona 3, avenida 0"},
+{c:"0001365112",name:"TIENDA JACKELINE",boxes:17.626,location:"Zona 1"},
+{c:"0001410311",name:"TIENDA AJANEL",boxes:5.999,location:"San Cristóbal Verapaz"},
+{c:"0001055528",name:"TIENDA Y PANADERÍA RIVERA",boxes:10.999,location:"Zona 4, 1a calle"},
+{c:"0001448927",name:"ESTRELLITA",boxes:11.25,location:"Barrio San Felipe"},
+{c:"0001053742",name:"TIENDA MARIBEL",boxes:1.542,location:"Zona 1, 0 calle"},
+{c:"0001338754",name:"TIENDA JACKELINE 4",boxes:9.083,location:"Zona 1, 6a calle"},
+{c:"0001284390",name:"MICELANIA LA EXCLUSIVA",boxes:8.5,location:"Barrio Santa Ana, zona 1"}
 ];
+const KEY="control_rutas_cobros_v1",BALANCE_KEY=KEY+"_balance_120209",NAMES_KEY="control_rutas_cobradores_v1",DEPOSIT_KEY=KEY+"_deposit_120209";
+let state={};try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){state={}}
 
-// Variables globales igual al código original
-let collectors = ["Cobrador 1","Cobrador 2","Cobrador 3"];
-let clientData = {};
-let balanceRoute = 0;
-let depositValue = "";
-let calcValue = "0";
-let calcOperator = "";
-let calcPrev = 0;
-let calcNew = true;
-
-// Guardar / cargar datos
-function saveAll(){
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_clientes",JSON.stringify(clientData));
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_cobradores",JSON.stringify(collectors));
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_balance",balanceRoute);
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_deposit",depositValue);
-}
-function loadAll(){
-  try{
-    clientData = JSON.parse(localStorage.getItem("ruta‑"+ROUTE_ID+"_clientes"))||{};
-    collectors = JSON.parse(localStorage.getItem("ruta‑"+ROUTE_ID+"_cobradores"))||collectors;
-    balanceRoute = Number(localStorage.getItem("ruta‑"+ROUTE_ID+"_balance"))||0;
-    depositValue = localStorage.getItem("ruta‑"+ROUTE_ID+"_deposit")||"";
-  }catch(e){clientData={}}
-}
-
-// Autenticación
-function unlockRoute(e){
-  e.preventDefault();
-  const pass = document.getElementById("authPassword").value.trim();
-  if(pass===ROUTE_AUTH_PASSWORD){
-    const d = new Date();
-    const day = d.getFullYear()+"‑"+String(d.getMonth()+1).padStart(2,"0")+"‑"+String(d.getDate()).padStart(2,"0");
-    localStorage.setItem("control_rutas_auth_day",day);
-    document.body.classList.remove("auth‑locked");
-    initApp();
-  }else{
-    document.getElementById("authError").innerText="❌ Contraseña incorrecta";
+// Cobros importados de la columna I. Vta. Con. (agrupados por código).
+// Los importes solo se inicializan cuando el cliente aún no tiene un cobro guardado.
+const IMPORTED_AMOUNTS = {"0001319863": 3297.28, "0001178521": 2052.14, "0001365112": 1420.76, "0001338754": 1047.75, "0001054626": 978.26, "0001139102": 1711.92, "0001054703": 922.53, "0001448927": 885.4, "0001405995": 745.9, "0001284390": 715.69, "0001054704": 676.78, "0001055528": 747.7, "0001410311": 598.65, "0001413941": 587.88, "0001386404": 593.88, "0001288567": 455.1, "0001328800": 358.44, "0001228150": 497.74, "0001206005": 236.37, "0001258419": 382.0, "0001215388": 190.52, "0001366342": 163.0, "0001054602": 122.0, "0001134674": 104.54, "0001053742": 101.1, "0001132744": 0.0, "0001432872": 0.0, "0001448662": 0.0, "0001424559": 0.0, "0001392476": 0.0};
+for (const [code, amount] of Object.entries(IMPORTED_AMOUNTS)) {
+  if (!state[code] || state[code].amount == null) {
+    state[code] = { ...(state[code] || {}), amount, imported: true };
   }
 }
+try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
 
-// Renderizar lista y resumen (igual original)
-function renderList(){
-  const list = document.getElementById("list");
-  const search = document.getElementById("search").value.toLowerCase();
-  list.innerHTML="";
-  CLIENTS.forEach((cli,idx)=>{
-    const rec = clientData[cli.c]||{collector:0,payment:0,amount:"",saved:false};
-    if(search && !(cli.name.toLowerCase().includes(search)||cli.c.toLowerCase().includes(search))) return;
-    const div = document.createElement("div");
-    div.className="card";
-    div.innerHTML=`
-      <div class="row">
-        <span class="num">${idx+1}</span>
-        <div style="flex‑grow:1">
-          <div class="name">${cli.name}</div>
-          <div class="code">Código: ${cli.c} | Lugar: ${cli.place} | Cajas: ${cli.boxes}</div>
-          <span class="status ${rec.saved?'saved':'pending'}">${rec.saved?'✅ Guardado':'⏳ Pendiente'}</span>
-          <div class="collectors">${collectors.map((c,i)=>`<button class="collector ${rec.collector===i?'selected':''}" onclick="selectCollector('${cli.c}',${i})">${c}</button>`).join("")}</div>
-          <div class="payment‑title">Forma pago</div>
-          <div class="payments">${["Efectivo","Transferencia","Cheque","Crédito"].map((p,i)=>`<button class="payment ${rec.payment===i?'selected':''}" onclick="selectPayment('${cli.c}',${i})">${p}</button>`).join("")}</div>
-          <div class="amount"><input id="amt_${cli.c}" type="number" step="0.01" placeholder="Monto Q" value="${rec.amount}"><button class="save" onclick="saveClient('${cli.c}')">Guardar</button></div>
-        </div>
-      </div>
-    `;
-    list.appendChild(div);
-  })
+let NAMES=["Daniel","Hairo","Rulio"];try{const n=JSON.parse(localStorage.getItem(NAMES_KEY)||"null");if(Array.isArray(n)&&n.length===3)NAMES=n}catch(e){}
+function saveState(){localStorage.setItem(KEY,JSON.stringify(state))}
+function saveNames(){localStorage.setItem(NAMES_KEY,JSON.stringify(NAMES))}
+const BILL_DENOMS=[200,100,50,20,10,5,1];
+function calcBills(b){return BILL_DENOMS.reduce((s,d)=>s+d*Number((b&&b[d])||0),0)}
+function money(v){return "Q"+Number(v||0).toLocaleString("es-GT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+let ROUTE_BALANCE=0;try{const v=localStorage.getItem(BALANCE_KEY);if(v!==null&&Number.isFinite(Number(v)))ROUTE_BALANCE=Number(v)}catch(e){}
+function editRouteBalance(){const v=prompt("Ingresa el balance a recolectar para esta ruta (Q):",ROUTE_BALANCE.toFixed(2));if(v===null)return;const n=Number(String(v).replace(/,/g,"").trim());if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido.");return}ROUTE_BALANCE=Math.round(n*100)/100;localStorage.setItem(BALANCE_KEY,String(ROUTE_BALANCE));render()}
+function editCollectors(){const updated=NAMES.map((n,i)=>{const v=prompt("Nombre del cobrador "+(i+1)+":",n);return v===null?n:(String(v).trim()||n)});NAMES=updated;saveNames();Object.values(state).forEach(s=>{if(s&&s.collector!=null){const i=Number(s.collector);if(NAMES[i])s.collectorName=NAMES[i]}});saveState();render()}
+let DEPOSITADO=0;try{DEPOSITADO=Math.max(0,Number(localStorage.getItem(DEPOSIT_KEY))||0)}catch(e){}
+function persistDeposit(v){DEPOSITADO=Math.round(Math.max(0,Number(v)||0)*100)/100;localStorage.setItem(DEPOSIT_KEY,String(DEPOSITADO))}
+function autoSaveDeposit(v){if(String(v).trim()===""){persistDeposit(0);updateStats();return}const n=Number(v);if(Number.isFinite(n)&&n>=0){persistDeposit(n);updateStats()}}
+function saveDeposit(show=false){const n=Number(document.getElementById("depositInput").value);if(!Number.isFinite(n)||n<0){alert("Agrega un monto válido.");return}persistDeposit(n);updateStats();if(show)alert("Depositado guardado: "+money(DEPOSITADO))}
+function updateDepositDisplay(){const i=document.getElementById("depositInput");if(i&&document.activeElement!==i)i.value=DEPOSITADO?DEPOSITADO.toFixed(2):""}
+function setBill(code,d,v){if(!state[code])state[code]={};if(!state[code].bills)state[code].bills={};state[code].bills[d]=Math.max(0,parseInt(v,10)||0);state[code].cashOpen=true;saveState();render()}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim(),list=document.getElementById("list");list.innerHTML="";
+ const filtered=CLIENTS.filter(x=>!q||x.name.toLowerCase().includes(q)||x.c.includes(q)||x.location.toLowerCase().includes(q));
+ if(!filtered.length){list.innerHTML='<div class="empty">No encontré clientes con esa búsqueda.</div>';updateStats();return}
+ const heading=document.createElement("div");heading.className="route-heading";heading.innerHTML=`<span>RUTA ${ROUTE_ID}</span><small>${filtered.length} de ${CLIENTS.length} clientes</small>`;list.appendChild(heading);
+ filtered.forEach((x,index)=>{
+  const s=state[x.c]||{},selected=s.collector??"",card=document.createElement("div");card.className="card";
+  card.innerHTML=`<div class="row"><div class="num">${CLIENTS.indexOf(x)+1}</div><div style="flex:1;min-width:0"><div class="name">${x.name}<span style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#e6f1ff;color:#0759c7;font-size:12px;font-weight:900;white-space:nowrap">${Number(x.boxes).toLocaleString("es-GT",{minimumFractionDigits:0,maximumFractionDigits:3})} cajas</span></div><div class="code">Código: ${x.c}</div><div class="code">${x.location}</div></div><div class="status ${s.amount!=null?"saved":"pending"}">${s.amount!=null?"✓ GUARDADO":"PENDIENTE"}</div></div>
+  <div class="collectors">${NAMES.map((n,i)=>`<button class="collector ${selected===String(i)?"selected":""}" onclick="pick('${x.c}','${i}')">${n}</button>`).join("")}</div>
+  <div class="payment-title">Forma de pago</div><div class="payments">${["Efectivo","Transferencia","Depósito","Crédito"].map(m=>`<button class="payment ${s.paymentMethod===m?"selected":""}" onclick="pickPayment('${x.c}','${m}')">${s.paymentMethod===m?"✓ ":""}${m}</button>`).join("")}</div>
+  ${s.paymentMethod==="Efectivo"?`<details class="cash-details" ${s.cashOpen?"open":""}><summary>💵 Billetes y denominaciones</summary><div class="bills">${BILL_DENOMS.map(d=>`<label class="bill"><span>Q${d}</span><input type="number" min="0" step="1" inputmode="numeric" value="${(s.bills&&s.bills[d])||0}" onchange="setBill('${x.c}',${d},this.value)" onclick="event.stopPropagation()"></label>`).join("")}</div><div class="cash-total">Total en billetes: ${money(calcBills(s.bills))}</div>${s.amount!=null&&Math.abs(calcBills(s.bills)-Number(s.amount))>.009?`<div class="cash-warning">⚠️ Los billetes no coinciden con el cobro de ${money(s.amount)}.</div>`:(s.amount!=null?'<div class="cash-ok">✓ Los billetes coinciden con el cobro.</div>':"")}</details>`:""}
+  <div class="amount"><input id="amt-${x.c}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad recibida Q" value="${s.amount??""}" ${s.amount!=null?"disabled":""}>${s.amount!=null?`<button class="edit" onclick="editClient('${x.c}')">Editar</button>`:`<button class="save" onclick="saveClient('${x.c}')">Guardar</button>`}</div>`;
+  list.appendChild(card);
+ });
+ document.getElementById("clientCountLabel").textContent=CLIENTS.length;updateStats();
+ document.getElementById("diagnostics").textContent=`Diagnóstico: ${Object.keys(state).length} registros guardados · Depositado ${money(DEPOSITADO)} · Ruta ${ROUTE_ID}`;
 }
-function updateSummary(){
-  let total=0,cobrados=0;
-  Object.values(clientData).forEach(r=>{if(r.saved){total+=Number(r.amount)||0;cobrados++}});
-  const rem = balanceRoute‑total;
-  document.getElementById("balance").innerText="Q"+balanceRoute.toFixed(2);
-  document.getElementById("remaining").innerText="Q"+rem.toFixed(2);
-  document.getElementById("count").innerText=cobrados+"/"+CLIENTS.length;
-  document.getElementById("total").innerText="Q"+total.toFixed(2);
-  document.getElementById("pending").innerText=CLIENTS.length‑cobrados;
-  document.getElementById("currentCash").innerText="Q"+(Number(depositValue)||0).toFixed(2);
-}
-
-// Funciones originales de selección y guardado
-function selectCollector(code,i){clientData[code]=clientData[code]||{};clientData[code].collector=i;saveAll();renderList()}
-function selectPayment(code,i){clientData[code]=clientData[code]||{};clientData[code].payment=i;saveAll();renderList()}
-function saveClient(code){clientData[code]=clientData[code]||{};clientData[code].amount=document.getElementById("amt_"+code).value;clientData[code].saved=true;saveAll();renderList();updateSummary()}
-function toggleGeneralData(){document.querySelector("header").classList.toggle("summary‑open")}
-function editCollectors(){const n=prompt("Cobradores separados por coma",collectors.join(","));if(n){collectors=n.split(",").map(x=>x.trim());saveAll();renderList()}}
-function editRouteBalance(){const b=Number(prompt("Balance a recolectar",balanceRoute));if(!isNaN(b)){balanceRoute=b;saveAll();updateSummary()}}
-function autoSaveDeposit(v){depositValue=v;saveAll()}
-function saveDeposit(confirm){depositValue=document.getElementById("depositInput").value;saveAll();updateSummary();if(confirm)alert("Depositado guardado")}
-
-// Exportar CSV / Respaldo / Limpiar ruta
-function exportCSV(){let t="Código,Nombre,Lugar,Cajas,Cobrador,FormaPago,Monto,Guardado\n";CLIENTS.forEach(c=>{const r=clientData[c.c]||{};t+=`${c.c},"${c.name}","${c.place}",${c.boxes},${collectors[r.collector||0]||""},${["Efectivo","Transferencia","Cheque","Crédito"][r.payment||0]||""},${r.amount||""},${r.saved?"SI":"NO"}\n`});const blob=new Blob([t],{type:"text/csv;charset=utf‑8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ruta‑"+ROUTE_ID+".csv";a.click();URL.revokeObjectURL(a.href)}
-function backup(){const b=JSON.stringify({clients:CLIENTS,clientData,collectors,balanceRoute,depositValue,date:ROUTE_DATE});const blob=new Blob([b],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="respaldo‑ruta‑"+ROUTE_ID+".json";a.click();URL.revokeObjectURL(a.href)}
-function clearRoute(){if(confirm("¿Cerrar y limpiar TODOS los datos de la ruta?")){clientData={};balanceRoute=0;depositValue="";saveAll();renderList();updateSummary()}}
-
-// Modal resumen cobradores
-function openSummary(){const sum={};collectors.forEach((c,i)=>sum[c]={monto:0,cant:0});Object.values(clientData).forEach(r=>{if(r.saved){const c=collectors[r.collector||0];sum[c].monto+=Number(r.amount)||0;sum[c].cant++}});let html="";Object.entries(sum).forEach(([k,v])=>html+=`<div class="tot"><span>${k}</span><strong>Q${v.monto.toFixed(2)} · ${v.cant} clientes</strong></div>`);document.getElementById("summary").innerHTML=html;document.getElementById("modal").classList.add("open")}
+function pick(c,i){if(!state[c])state[c]={};state[c].collector=String(i);state[c].collectorName=NAMES[i];saveState();render()}
+function pickPayment(c,m){if(!state[c])state[c]={};state[c].paymentMethod=m;if(m==="Efectivo")state[c].cashOpen=true;saveState();render()}
+function saveClient(c){const s=state[c]||{};if(s.collector==null){alert("Primero marca uno de los 3 cobradores.");return}if(!s.paymentMethod){alert("Primero marca la forma de pago.");return}const v=Number(document.getElementById("amt-"+c).value);if(!Number.isFinite(v)||v<0||document.getElementById("amt-"+c).value===""){alert("Agrega la cantidad recibida.");return}if(s.paymentMethod==="Efectivo"&&Math.abs(calcBills(s.bills)-v)>.009&&!confirm("Los billetes no coinciden con la cantidad recibida. ¿Guardar de todos modos?"))return;s.amount=Math.round(v*100)/100;s.savedAt=new Date().toISOString();state[c]=s;saveState();render()}
+function editClient(c){if(!state[c])return;delete state[c].amount;delete state[c].savedAt;saveState();render();setTimeout(()=>document.getElementById("amt-"+c)?.focus(),30)}
+function updateStats(){let done=0,total=0;CLIENTS.forEach(x=>{const s=state[x.c]||{};if(s.amount!=null){done++;total+=Number(s.amount)||0}});const remaining=Math.max(0,ROUTE_BALANCE-total),cash=Math.max(0,total-DEPOSITADO);document.getElementById("balance").textContent=money(ROUTE_BALANCE);document.getElementById("remaining").textContent=money(remaining);document.getElementById("count").textContent=done+"/"+CLIENTS.length;document.getElementById("total").textContent=money(total);document.getElementById("pending").textContent=CLIENTS.length-done;document.getElementById("currentCash").textContent=money(cash);updateDepositDisplay()}
+document.getElementById("search").addEventListener("input",render);
+function toggleGeneralData(){document.querySelector("header").classList.toggle("summary-open")}
+function openSummary(){const sums=NAMES.map(n=>({name:n,count:0,total:0})),methods=["Efectivo","Transferencia","Depósito","Crédito"],ps=Object.fromEntries(methods.map(m=>[m,{count:0,total:0}]));CLIENTS.forEach(x=>{const s=state[x.c]||{};if(s.amount!=null){if(s.collector!=null&&sums[Number(s.collector)]){sums[Number(s.collector)].count++;sums[Number(s.collector)].total+=Number(s.amount)||0}if(ps[s.paymentMethod]){ps[s.paymentMethod].count++;ps[s.paymentMethod].total+=Number(s.amount)||0}}});const done=CLIENTS.filter(x=>state[x.c]?.amount!=null).length,total=methods.reduce((a,m)=>a+ps[m].total,0);document.getElementById("summary").innerHTML="<h3>Por cobrador</h3>"+sums.map(x=>`<div class="tot"><div><b>${x.name}</b><div class="small">${x.count} clientes</div></div><b>${money(x.total)}</b></div>`).join("")+"<h3 style='margin-top:16px'>Por forma de pago</h3>"+methods.map(m=>`<div class="tot"><div><b>${m}</b><div class="small">${ps[m].count} clientes</div></div><b>${money(ps[m].total)}</b></div>`).join("")+`<div class="tot"><b>TOTAL</b><b>${money(total)}</b></div><p class="small">Cobrado: ${done} de ${CLIENTS.length} · Pendientes: ${CLIENTS.length-done}</p>`;document.getElementById("modal").classList.add("open")}
 function closeModal(){document.getElementById("modal").classList.remove("open")}
-
-// Calculadora original
-function toggleCalculator(show){const p=document.getElementById("calcPanel");p.classList.toggle("open",show!==false)}
-function calcInput(ch){if(calcNew){calcValue=ch;calcNew=false}else{calcValue+=ch}document.getElementById("calcDisplay").value=calcValue}
-function calcClear(){calcValue="0";calcOperator="";calcPrev=0;calcNew=true;document.getElementById("calcDisplay").value=calcValue}
-function calcBackspace(){calcValue=calcValue.slice(0,‑1)||"0";document.getElementById("calcDisplay").value=calcValue}
-function calcToggleSign(){calcValue=String(‑Number(calcValue));document.getElementById("calcDisplay").value=calcValue}
-function calcEquals(){if(!calcOperator)return;const curr=Number(calcValue);let res=0;switch(calcOperator){case"+":res=calcPrev+curr;break;case"‑":res=calcPrev‑curr;break;case"×":res=calcPrev*curr;break;case"÷":res=curr!==0?calcPrev/curr:0;break;case"%":res=calcPrev%curr;break}calcValue=String(res);calcOperator="";calcNew=true;document.getElementById("calcDisplay").value=calcValue}
-
-// Cambiar operador
-document.querySelectorAll(".calc‑op").forEach(btn=>{btn.onclick=()=>{calcPrev=Number(calcValue);calcOperator=btn.innerText;calcNew=true}});
-
-// Editar título ruta
-function editRouteTitle(){const t=prompt("Título de la ruta",localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE);if(t){localStorage.setItem(ROUTE_TITLE_KEY)=t;document.getElementById("routeTitle").innerText=t;document.title=t}}
-
-// Búsqueda
-document.getElementById("search").addEventListener("input",renderList);
-
-// Iniciar app
-function initApp(){
-  loadAll();
-  const savedTitle = localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE;
-  document.getElementById("routeTitle").innerText=savedTitle;
-  document.title=savedTitle;
-  document.getElementById("depositInput").value=depositValue;
-  renderList();
-  updateSummary();
-}
-// Si ya autenticado ese día
-if(document.documentElement.dataset.authRequired!=="1") initApp();
+function exportCSV(){const rows=[["Codigo","Cliente","Ruta","Lugar","Cajas","Cobrador","Forma de pago","Cantidad recibida Q","Q200","Q100","Q50","Q20","Q10","Q5","Q1","Fecha/hora"]];CLIENTS.forEach(x=>{const s=state[x.c]||{};rows.push([x.c,x.name,ROUTE_ID,x.location,x.boxes,s.collectorName||"",s.paymentMethod||"",s.amount??"",...BILL_DENOMS.map(d=>(s.bills&&s.bills[d])||0),s.savedAt?new Date(s.savedAt).toLocaleString("es-GT"):""])});const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="Ruta_120209_Cobros.csv";a.click();URL.revokeObjectURL(a.href)}
+function backup(){const blob=new Blob([JSON.stringify({route:ROUTE_ID,date:ROUTE_DATE,totalBoxes:TOTAL_BOXES,clients:CLIENTS,state,depositado:DEPOSITADO},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Ruta_120209_Respaldo.json";a.click();URL.revokeObjectURL(a.href)}
+function clearRoute(){if(prompt("Para limpiar la ruta escribe CERRAR:")==="CERRAR"){CLIENTS.forEach(x=>delete state[x.c]);saveState();persistDeposit(0);render();alert("Ruta 120209 limpiada. El respaldo exportado queda en tu teléfono.")}}
+window.addEventListener("error",e=>{const d=document.getElementById("diagnostics");if(d)d.textContent="Diagnóstico: ERROR · "+(e.message||"revisar consola")});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.log("SW:",e)));
+let calcExpression="",calcJustEvaluated=false;
+function toggleCalculator(force){const p=document.getElementById("calcPanel"),open=typeof force==="boolean"?force:!p.classList.contains("open");p.classList.toggle("open",open);if(open)calcDisplayUpdate()}
+function calcDisplayUpdate(){document.getElementById("calcDisplay").value=calcExpression||"0"}
+function calcInput(v){if(calcJustEvaluated&&/[0-9.]/.test(v))calcExpression="";calcJustEvaluated=false;if(v==="."){const seg=calcExpression.split(/[+\-*/%]/).pop();if(seg.includes("."))return;if(!seg)v="0."}if(/[+\-*/%]/.test(v)){if(!calcExpression&&v!=="-")return;if(/[+\-*/%]$/.test(calcExpression))calcExpression=calcExpression.slice(0,-1)}calcExpression+=v;calcDisplayUpdate()}
+function calcClear(){calcExpression="";calcJustEvaluated=false;calcDisplayUpdate()}
+function calcBackspace(){calcExpression=calcExpression.slice(0,-1);calcJustEvaluated=false;calcDisplayUpdate()}
+function calcToggleSign(){if(!calcExpression){calcExpression="-";calcDisplayUpdate();return}const m=calcExpression.match(/(\d*\.?\d+)$/);if(m){const i=m.index,n=m[0];calcExpression=calcExpression.slice(0,i)+(n.startsWith("-")?n.slice(1):"-"+n);calcDisplayUpdate()}}
+function calcEquals(){if(!calcExpression||!/^[0-9+\-*/%.()\s]+$/.test(calcExpression))return;try{const r=Function('"use strict";return ('+calcExpression.replace(/(\d+(?:\.\d+)?)%/g,"($1/100)")+')')();if(!Number.isFinite(r))throw Error();calcExpression=String(Math.round((r+Number.EPSILON)*1e8)/1e8);calcJustEvaluated=true;calcDisplayUpdate()}catch(e){document.getElementById("calcDisplay").value="Error"}}
+applyRouteTitle();document.querySelector(".controls").style.top="64px";render();
 </script>
 </body>
 </html>
