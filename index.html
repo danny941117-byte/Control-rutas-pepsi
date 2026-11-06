@@ -32,7 +32,7 @@ input{font-size:16px}
 
 <div id="authBox">
 <h2>🔐 Ingreso Ruta 120209</h2>
-<p style="margin:12px 0;font-size:14px">Ingresa contraseña para acceder</p>
+<p style="margin:12px 0;font-size:14px">Ingresa contraseña una sola vez</p>
 <input id="passInput" type="password" placeholder="Contraseña" style="padding:10px;width:80%;border:1px solid #ccc;border-radius:8px">
 <br><br>
 <button onclick="ingresar()" style="padding:10px 20px;background:#0b8cff;color:white;border:none;border-radius:8px">Ingresar</button>
@@ -41,7 +41,7 @@ input{font-size:16px}
 
 <div id="mainApp" class="wrapper">
 <h1>Control de Rutas · 120209</h1>
-<div class="sub">39 clientes | Datos guardados automáticamente</div>
+<div class="sub">39 clientes | Datos guardados permanentemente</div>
 
 <div class="summary-box">
 <div><strong id="totalRef">Q0.00</strong>Referencia total</div>
@@ -53,6 +53,7 @@ input{font-size:16px}
 
 <div style="margin-top:20px;display:flex;gap:10px">
 <button onclick="exportarCSV()" style="padding:10px;background:#0b8cff;color:white;border:none;border-radius:8px">📥 Exportar CSV</button>
+<button onclick="cerrarSesion()" style="padding:10px;background:#ff9800;color:white;border:none;border-radius:8px">🔒 Cerrar sesión</button>
 <button onclick="limpiarTodo()" style="padding:10px;background:#c42021;color:white;border:none;border-radius:8px">🗑️ Limpiar todos los datos</button>
 </div>
 </div>
@@ -60,6 +61,7 @@ input{font-size:16px}
 <script>
 const PASS_CORRECTA = "2425";
 const CLAVE_STORAGE = "ruta_120209_datos";
+const CLAVE_AUTH = "ruta_120209_auth_ok";
 
 const clientes = [
 {c:"0001052884",n:"TIENDA SAN JOSE 2"},
@@ -103,7 +105,6 @@ const clientes = [
 {c:"0001424553",n:"GRANJERO COBÁN 519"}
 ];
 
-// Cargar datos guardados
 function cargarDatos(){
   try{
     return JSON.parse(localStorage.getItem(CLAVE_STORAGE)) || Array(clientes.length).fill({ref:"",rec:""})
@@ -113,20 +114,37 @@ function cargarDatos(){
 }
 let datosGuardados = cargarDatos();
 
-// Ingreso contraseña
+// Verifica si ya ingresó antes
+function verificarAcceso(){
+  if(localStorage.getItem(CLAVE_AUTH) === "si"){
+    mostrarApp();
+  }
+}
+
 function ingresar(){
   const pass = document.getElementById("passInput").value.trim();
   if(pass === PASS_CORRECTA){
-    document.getElementById("authBox").style.display = "none";
-    document.getElementById("mainApp").style.display = "block";
-    renderizarLista();
-    actualizarResumen();
+    localStorage.setItem(CLAVE_AUTH,"si");
+    mostrarApp();
   }else{
     document.getElementById("errorMsg").innerText = "❌ Contraseña incorrecta";
   }
 }
 
-// Dibujar tarjetas
+function mostrarApp(){
+  document.getElementById("authBox").style.display = "none";
+  document.getElementById("mainApp").style.display = "block";
+  renderizarLista();
+  actualizarResumen();
+}
+
+// Cerrar sesión (vuelve a pedir contraseña)
+function cerrarSesion(){
+  localStorage.removeItem(CLAVE_AUTH);
+  alert("Sesión cerrada, volverá a pedir contraseña al recargar");
+  location.reload();
+}
+
 function renderizarLista(){
   const contenedor = document.getElementById("listaClientes");
   contenedor.innerHTML = "";
@@ -148,7 +166,6 @@ function renderizarLista(){
   })
 }
 
-// Guardar + actualizar resumen
 function guardar(idx){
   const refVal = document.getElementById(`ref_${idx}`).value;
   const recVal = document.getElementById(`rec_${idx}`).value;
@@ -158,7 +175,6 @@ function guardar(idx){
   alert("✅ Guardado correctamente");
 }
 
-// Calcular resumen
 function actualizarResumen(){
   let sumaRef = 0, sumaRec = 0, cobrados = 0;
   datosGuardados.forEach(d=>{
@@ -171,7 +187,6 @@ function actualizarResumen(){
   document.getElementById("cantCobrados").innerText = `${cobrados}/39`;
 }
 
-// Exportar CSV
 function exportarCSV(){
   let texto = "Código,Nombre,Referencia Q,Recibido Q\n";
   clientes.forEach((cli,idx)=>{
@@ -185,7 +200,6 @@ function exportarCSV(){
   URL.revokeObjectURL(enlace.href);
 }
 
-// Limpiar todo
 function limpiarTodo(){
   if(confirm("¿Estás seguro de borrar TODOS los datos guardados?")){
     datosGuardados = Array(clientes.length).fill({ref:"",rec:""});
@@ -194,6 +208,9 @@ function limpiarTodo(){
     actualizarResumen();
   }
 }
+
+// Ejecutar al abrir la página
+verificarAcceso();
 </script>
 </body>
 </html>
