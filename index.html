@@ -1,250 +1,573 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b74ff">
-<link rel="manifest" href="manifest.json">
-<title>Control de Rutas · 120209</title>
-<style>
-:root{--blue:#0b8cff;--ok:#0a9b62;--muted:#66788a}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(ellipse at 12% 8%,rgba(0,140,255,.24),transparent 34%),radial-gradient(ellipse at 88% 30%,rgba(0,225,255,.13),transparent 30%),radial-gradient(ellipse at 50% 100%,rgba(20,76,180,.24),transparent 42%),linear-gradient(145deg,#061426,#0a2038 48%,#071426);background-attachment:fixed;color:#102131;min-height:100vh;position:relative}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(97,184,255,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(97,184,255,.065) 1px,transparent 1px);background-size:30px 30px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 90%)}
-body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 50% 0%,transparent 0,rgba(0,0,0,.12) 75%);box-shadow:inset 0 0 90px rgba(0,0,0,.28)}
-body>*{position:relative;z-index:1}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(120deg,rgba(4,18,36,.97),rgba(5,76,143,.96),rgba(4,28,53,.97));color:white;padding:9px 12px 8px;box-shadow:0 8px 28px #0005;border-bottom:1px solid rgba(91,190,255,.35);backdrop-filter:blur(14px)}
-h1{font-size:19px;margin:0 0 2px;overflow-wrap:anywhere}.title-line{display:flex;align-items:center;gap:7px}.title-edit{flex:none;padding:4px 7px;background:#ffffff20;color:#fff;border:1px solid #ffffff35;font-size:12px}.sub{font-size:11px;opacity:.85}
-.summary-toggle{width:100%;margin-top:6px;padding:7px 10px;background:#ffffff16;border:1px solid #ffffff30;border-radius:9px;color:white;font-size:11px;font-weight:800;text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer}.summary-toggle .arrow{font-size:13px;transition:transform .15s ease}.summary-toggle+.summary-toggle{margin-top:5px}
-.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:max-height .18s ease,opacity .12s ease}header.summary-open .summary{max-height:calc(100vh - 125px);opacity:1;overflow-y:auto;padding-bottom:8px}header.summary-open .summary-toggle .arrow{transform:rotate(180deg)}
-.box{background:#ffffff18;border:1px solid #ffffff30;border-radius:9px;padding:6px;text-align:center}.box b{display:block;font-size:15px;line-height:1.1}.box span{font-size:9px;opacity:.85}.deposit-box{grid-column:1/-1;text-align:left;min-height:82px}.deposit-control{display:flex;gap:6px;align-items:center;margin-top:6px}.deposit-control input{flex:1;min-width:0;padding:7px 8px;border:1px solid #ffffff40;border-radius:7px;background:#ffffff12;color:white;font-weight:800;font-size:14px}.deposit-control input::placeholder{color:#ffffff99}.deposit-box>span{display:block;font-size:12px!important;opacity:.95}.deposit-control button{padding:7px 9px;background:#ffffff20;color:white;border:1px solid #ffffff35}.deposit-current{margin-top:6px;font-size:11px;color:#fff;opacity:.95}.deposit-current b{font-size:14px}
-.controls{padding:8px 12px;display:flex;gap:7px;position:sticky;top:64px;z-index:9;background:rgba(5,20,39,.88);border-bottom:1px solid rgba(91,190,255,.22);backdrop-filter:blur(12px)}
-input.search{flex:1;padding:11px;border:1px solid #9dc9ed;border-radius:10px;font-size:14px;background:#f8fcff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
-button{border:0;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}.btn{background:#e7eef6;color:#17324a}.primary{background:var(--blue);color:white}
-main{padding:8px 10px 70px;max-width:760px;margin:auto;min-height:calc(100vh - 160px)}
-.card{background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(239,247,255,.97));border:1px solid rgba(105,190,255,.38);border-radius:14px;padding:11px;margin:10px 0;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.9)}
-.route-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(110deg,#dceeff,#c5e4ff);color:#074da8;border-left:4px solid var(--blue);border-radius:10px;font-weight:900;font-size:13px;box-shadow:0 4px 14px rgba(0,119,255,.16);margin:10px 0 0}.route-heading small{font-size:11px;font-weight:700;color:#375a80}
-.row{display:flex;gap:9px;align-items:flex-start}.num{width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:#0759c7;display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
-.name{font-weight:800;font-size:14px;line-height:1.2}.code{font-size:11px;color:var(--muted);margin-top:3px}.status{margin-left:auto;font-size:11px;font-weight:800;white-space:nowrap}.pending{color:#9a6a00}.saved{color:var(--ok)}
-.collectors{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 7px}.collector{background:#edf2f7;color:#244158;border:2px solid transparent;padding:9px 5px;font-size:12px}.collector.selected{background:#e6f1ff;border-color:var(--blue);color:#005bd4}
-.payment-title{font-size:12px;font-weight:800;margin:9px 0 5px;color:#244158}.payments{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 8px}.payment{background:#f4f7fa;color:#244158;border:2px solid transparent;padding:9px 4px;font-size:11px}.payment.selected{background:#e9f8f1;border-color:var(--ok);color:#08744b}
-.amount{display:flex;gap:7px}.amount input{flex:1;min-width:0;padding:11px;border:1px solid #cbd7e3;border-radius:9px;font-size:16px}.amount .save{min-width:105px;background:var(--ok);color:white}.amount .edit{background:#ffe9e9;color:#a52323}
-.cash-details{margin:6px 0 8px;border:1px solid #dbe4ec;border-radius:10px;background:#f8fafc;overflow:hidden}.cash-details summary{cursor:pointer;padding:10px;font-size:12px;font-weight:800;color:#244158;list-style:none}.cash-details summary:after{content:"▾";float:right}.cash-details[open] summary:after{content:"▴"}.bills{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 8px 8px}.bill{display:flex;align-items:center;justify-content:space-between;gap:6px;background:white;border:1px solid #dbe4ec;border-radius:8px;padding:6px 7px;font-size:12px}.bill input{width:62px;padding:7px;border:1px solid #cbd7e3;border-radius:7px;text-align:center}.cash-total{padding:8px;border-top:1px solid #e1e8ef;text-align:right;font-weight:800;font-size:12px}.cash-warning{color:#b42318;font-size:11px;padding:0 8px 8px}.cash-ok{color:var(--ok);font-size:11px;padding:0 8px 8px}
-footer{position:fixed;bottom:0;left:0;right:0;background:rgba(4,17,33,.94);border-top:1px solid rgba(91,190,255,.32);padding:8px 10px;display:flex;gap:7px;z-index:20;backdrop-filter:blur(14px);box-shadow:0 -8px 24px rgba(0,0,0,.22)}footer button{flex:1;font-size:12px}.empty{text-align:center;color:#66788a;padding:30px}
-.modal{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:flex-end;justify-content:center}.modal.open{display:flex}.sheet{background:white;width:100%;max-width:760px;border-radius:18px 18px 0 0;padding:18px;max-height:80vh;overflow:auto}.sheet h2{margin:0 0 10px;font-size:18px}.tot{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee}.small{font-size:11px;color:#66788a}
-.diagnostics{position:fixed;right:8px;bottom:58px;z-index:30;background:#071a2d;color:#d9f2ff;border-radius:8px;padding:5px 8px;font:10px monospace;opacity:.85}
-#authGate{display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#071a2d,#0b74ff);align-items:center;justify-content:center;padding:22px;color:white}body.auth-locked>:not(#authGate){display:none!important}body.auth-locked #authGate{display:flex}.auth-card{width:100%;max-width:360px;background:#ffffff12;border:1px solid #ffffff35;border-radius:18px;padding:24px;box-shadow:0 18px 50px #0004;text-align:center}.auth-card h2{margin:0 0 8px;font-size:22px}.auth-card p{margin:0 0 18px;font-size:13px;opacity:.9}.auth-card input{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff50;background:#fff;color:#102131;font-size:18px;text-align:center;letter-spacing:5px}.auth-card button{width:100%;margin-top:10px;padding:12px;background:#fff;color:#0759c7;font-size:15px}.auth-error{min-height:18px;margin-top:10px;font-size:12px;color:#ffe0e0}
-#calcFab{position:fixed;right:16px;bottom:76px;z-index:40;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0b74ff,#0750b5);color:#fff;font-size:25px;box-shadow:0 6px 20px #064ba855;border:2px solid #fff;display:grid;place-items:center}#calcPanel{display:none;position:fixed;right:12px;bottom:142px;z-index:41;width:min(320px,calc(100vw - 24px));background:#071a2d;color:#fff;border:1px solid #ffffff35;border-radius:18px;padding:14px;box-shadow:0 14px 40px #0005}#calcPanel.open{display:block}.calc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800}.calc-close{background:#ffffff20;color:#fff;padding:6px 10px;font-size:18px}#calcDisplay{width:100%;height:58px;margin-bottom:10px;border:1px solid #ffffff30;border-radius:10px;background:#ffffff12;color:#fff;text-align:right;padding:10px;font-size:25px;font-weight:800}.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.calc-grid button{min-height:46px;background:#ffffff18;color:#fff;font-size:17px;padding:8px}.calc-grid button.calc-op{background:#0b74ff}.calc-grid button.calc-eq{background:#0a9b62}.calc-grid button.calc-clear{background:#8e3030}
-@media(max-width:380px){#calcFab{right:12px;bottom:72px;width:52px;height:52px}}
-</style>
-<script>
-(function(){const key="control_rutas_auth_day",now=new Date(),day=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");try{if(localStorage.getItem(key)!==day)document.documentElement.dataset.authRequired="1"}catch(e){document.documentElement.dataset.authRequired="1"}document.addEventListener("DOMContentLoaded",()=>{if(document.documentElement.dataset.authRequired==="1")document.body.classList.add("auth-locked")})})();
-</script>
-</head>
-<body>
-<div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle"><form class="auth-card" onsubmit="return unlockRoute(event)"><h2 id="authTitle">🔐 Control de Rutas · 120209</h2><p>Ingresa la contraseña para ver la información de la ruta.</p><input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" autofocus><button type="submit">Ingresar</button><div id="authError" class="auth-error" aria-live="polite"></div></form></div>
-<header>
-<div class="title-line"><h1 id="routeTitle">Control de Rutas · 120209</h1><button class="title-edit" onclick="editRouteTitle()" aria-label="Editar título de ruta" title="Editar título de ruta">✏️</button></div>
-<div class="sub"><span id="clientCountLabel">39</span> clientes · <span id="routeLabel">Ruta 120209</span> · 04/11/2026</div>
-<button class="summary-toggle" onclick="toggleGeneralData()">📊 Datos generales <span class="arrow">▾</span></button><button class="summary-toggle" onclick="editCollectors()">👤 Editar cobradores <span>✏️</span></button>
-<div class="summary">
-<div class="box"><b>315.450</b><span>Cajas físicas · Ruta 120209</span></div>
-<div class="box"><b id="balance">Q0.00</b><span>balance a recolectar</span><button onclick="editRouteBalance()" style="margin-top:5px;padding:4px 7px">✏️ Editar</button></div>
-<div class="box"><b id="remaining">Q0.00</b><span>saldo por recolectar</span></div><div class="box"><b id="count">0/39</b><span>clientes cobrados</span></div>
-<div class="box"><b id="total">Q0.00</b><span>total cobrado</span></div><div class="box"><b id="pending">39</b><span>pendientes</span></div>
-<div class="box deposit-box"><span>💰 Depositado</span><div class="deposit-control"><input id="depositInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Cantidad en quetzales" oninput="autoSaveDeposit(this.value)" onchange="saveDeposit()"><button onclick="saveDeposit(true)">Guardar</button></div><div class="deposit-current">Efectivo actual: <b id="currentCash">Q0.00</b></div></div>
-</div></header>
-<div class="controls"><input id="search" class="search" placeholder="Buscar cliente o código…"><button class="btn" onclick="openSummary()">📊 Resumen</button></div>
-<main id="list"></main>
-<footer><button class="btn" onclick="exportCSV()">⬇️ Exportar</button><button class="btn" onclick="backup()">💾 Respaldo</button><button class="primary" onclick="clearRoute()">🔒 Cerrar/limpiar ruta</button></footer>
-<div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><h2>Resumen por cobrador</h2><div id="summary"></div><button class="primary" style="width:100%;margin-top:12px" onclick="closeModal()">Cerrar</button></div></div>
-<button id="calcFab" type="button" aria-label="Abrir calculadora" title="Calculadora" onclick="toggleCalculator()">🧮</button>
-<section id="calcPanel" aria-label="Calculadora flotante"><div class="calc-top"><span>🧮 Calculadora</span><button class="calc-close" type="button" onclick="toggleCalculator(false)" aria-label="Cerrar calculadora">×</button></div><input id="calcDisplay" value="0" readonly aria-label="Pantalla de calculadora"><div class="calc-grid">
-<button class="calc-clear" onclick="calcClear()">C</button><button onclick="calcBackspace()">⌫</button><button class="calc-op" onclick="calcInput('%')">%</button><button class="calc-op" onclick="calcInput('/')">÷</button>
-<button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button class="calc-op" onclick="calcInput('*')">×</button>
-<button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button class="calc-op" onclick="calcInput('-')">−</button>
-<button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button class="calc-op" onclick="calcInput('+')">+</button>
-<button onclick="calcInput('0')">0</button><button onclick="calcInput('.')">.</button><button onclick="calcToggleSign()">±</button><button class="calc-eq" onclick="calcEquals()">=</button>
-</div></section>
-<script>
-"use strict";
-const ROUTE_AUTH_PASSWORD = "2425";
-const ROUTE_TITLE_KEY = "control_rutas_display_title";
-const DEFAULT_ROUTE_TITLE = "Control de Rutas · 120209";
-const ROUTE_ID = "120209";
-const ROUTE_DATE = "2026‑11‑04";
-const TOTAL_BOXES = 315.450;
 
-const CLIENTS = [
-  {c:"0001052884",name:"TIENDA SAN JOSE 2",place:"Cobán",boxes:0},
-  {c:"0001386646",name:"RESTAURANTE VALENTINA",place:"Cobán",boxes:0},
-  {c:"0001052675",name:"LIBRERÍA EL ÉXITO",place:"Cobán",boxes:0},
-  {c:"0001055430",name:"TIENDA LA SURTIDORA",place:"Cobán",boxes:0},
-  {c:"0001177030",name:"TIENDA EL ESTADIO VERAPAZ",place:"Cobán",boxes:0},
-  {c:"0001422201",name:"TD JAMAI",place:"Cobán",boxes:0},
-  {c:"0001052668",name:"TIENDA JERUSALEN",place:"Cobán",boxes:0},
-  {c:"0001052671",name:"TIENDA ESTRELLA 2 MIGUEL LUS",place:"Cobán",boxes:0},
-  {c:"0001052672",name:"TIENDA LA BENDICIÓN MANUEL TZU",place:"Cobán",boxes:0},
-  {c:"0001223437",name:"TIENDA CARMENCITA II",place:"Cobán",boxes:0},
-  {c:"0001422254",name:"LUJO DE CAFÉ",place:"Cobán",boxes:0},
-  {c:"0001052718",name:"COMIDAS EL CHURRASQUITO",place:"Cobán",boxes:0},
-  {c:"0001058451",name:"TIENDA Y SASTRERÍA VERAPAZ WEN",place:"Cobán",boxes:0},
-  {c:"0001388708",name:"TIENDA LUNA",place:"Cobán",boxes:0},
-  {c:"0001318078",name:"TIENDA DIEGUITO 2",place:"Cobán",boxes:0},
-  {c:"0001235485",name:"TIENDA LA ESTRELLA",place:"Cobán",boxes:0},
-  {c:"0001200273",name:"TIENDA AZUCENA",place:"Cobán",boxes:0},
-  {c:"0001362041",name:"TIENDA FABIOLA 2 MANUEL CASTRO",place:"Cobán",boxes:0},
-  {c:"0001326112",name:"ALIMENTOS TÍPICOS DE LA REGIÓN",place:"Cobán",boxes:0},
-  {c:"0001053948",name:"MINITIENDA",place:"Cobán",boxes:0},
-  {c:"0001287933",name:"VARIEDADES ESPERANZA",place:"Cobán",boxes:0},
-  {c:"0001286200",name:"TIENDA LA SURTIDORA",place:"Cobán",boxes:0},
-  {c:"0001352066",name:"TIENDA ESPERANSITA 2 ESPERANZA",place:"Cobán",boxes:0},
-  {c:"0001413378",name:"LAS PICONAS",place:"Cobán",boxes:0},
-  {c:"0001424126",name:"TIENDA LA BENDICIÓN",place:"Cobán",boxes:0},
-  {c:"0001052769",name:"TIENDA LA VENTANITA",place:"Cobán",boxes:0},
-  {c:"0001452472",name:"COMERCIAL ADONAI",place:"Cobán",boxes:0},
-  {c:"0001287822",name:"DELI PANES",place:"Cobán",boxes:0},
-  {c:"0001053968",name:"TIENDA SAN MIGUEL",place:"Cobán",boxes:0},
-  {c:"0001316905",name:"RESTAURANTE SANIGUA",place:"Cobán",boxes:0},
-  {c:"0001053933",name:"TIENDA LOS TRAVIESOS CARLOTA C",place:"Cobán",boxes:0},
-  {c:"0001200268",name:"TIENDA CHATIO 2",place:"Cobán",boxes:0},
-  {c:"0001421958",name:"LA FOGATA",place:"Cobán",boxes:0},
-  {c:"0001373815",name:"SUPER 24 CARCHA 2",place:"Carcha",boxes:0},
-  {c:"0001370582",name:"TIENDA YULY",place:"Carcha",boxes:0},
-  {c:"0001421785",name:"MUNDO DE Q.3",place:"Carcha",boxes:0},
-  {c:"0001329221",name:"INVERSIONES CESI SOCIEDAD ANÓNIMA",place:"Carcha",boxes:0},
-  {c:"0001290683",name:"ABARROTES EL ALFARERO",place:"Carcha",boxes:0},
-  {c:"0001424553",name:"GRANJERO COBÁN 519",place:"Cobán",boxes:0}
-];
+          Number(r.collector) : 0;
+        r.payment = Number.isInteger(Number(r.payment)) ? Number(r.payment) : 0;
+        r.amount = r.amount ?? "";
+        r.saved = Boolean(r.saved);
+      }
+    });
 
-// Variables globales igual al código original
-let collectors = ["Cobrador 1","Cobrador 2","Cobrador 3"];
-let clientData = {};
-let balanceRoute = 0;
-let depositValue = "";
-let calcValue = "0";
-let calcOperator = "";
-let calcPrev = 0;
-let calcNew = true;
-
-// Guardar / cargar datos
-function saveAll(){
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_clientes",JSON.stringify(clientData));
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_cobradores",JSON.stringify(collectors));
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_balance",balanceRoute);
-  localStorage.setItem("ruta‑"+ROUTE_ID+"_deposit",depositValue);
-}
-function loadAll(){
-  try{
-    clientData = JSON.parse(localStorage.getItem("ruta‑"+ROUTE_ID+"_clientes"))||{};
-    collectors = JSON.parse(localStorage.getItem("ruta‑"+ROUTE_ID+"_cobradores"))||collectors;
-    balanceRoute = Number(localStorage.getItem("ruta‑"+ROUTE_ID+"_balance"))||0;
-    depositValue = localStorage.getItem("ruta‑"+ROUTE_ID+"_deposit")||"";
-  }catch(e){clientData={}}
-}
-
-// Autenticación
-function unlockRoute(e){
-  e.preventDefault();
-  const pass = document.getElementById("authPassword").value.trim();
-  if(pass===ROUTE_AUTH_PASSWORD){
-    const d = new Date();
-    const day = d.getFullYear()+"‑"+String(d.getMonth()+1).padStart(2,"0")+"‑"+String(d.getDate()).padStart(2,"0");
-    localStorage.setItem("control_rutas_auth_day",day);
-    document.body.classList.remove("auth‑locked");
-    initApp();
-  }else{
-    document.getElementById("authError").innerText="❌ Contraseña incorrecta";
+    setDiagnostic("Datos cargados");
+  } catch(e) {
+    console.error(e);
+    clientData = {};
+    setDiagnostic("Error al cargar datos");
   }
 }
 
-// Renderizar lista y resumen (igual original)
-function renderList(){
+// ==========================================
+// AUTENTICACIÓN
+// ==========================================
+
+function unlockRoute(e) {
+  e.preventDefault();
+
+  const pass = document.getElementById("authPassword").value.trim();
+
+  if(pass === ROUTE_AUTH_PASSWORD) {
+    const d = new Date();
+    const day = d.getFullYear() + "-" +
+      String(d.getMonth()+1).padStart(2,"0") + "-" +
+      String(d.getDate()).padStart(2,"0");
+
+    localStorage.setItem("control_rutas_auth_day",day);
+    document.body.classList.remove("auth-locked");
+    initApp();
+  } else {
+    document.getElementById("authError").innerText =
+      "Contraseña incorrecta";
+  }
+
+  return false;
+}
+
+// ==========================================
+// RENDERIZAR CLIENTES
+// ==========================================
+
+function renderList() {
   const list = document.getElementById("list");
-  const search = document.getElementById("search").value.toLowerCase();
-  list.innerHTML="";
-  CLIENTS.forEach((cli,idx)=>{
-    const rec = clientData[cli.c]||{collector:0,payment:0,amount:"",saved:false};
-    if(search && !(cli.name.toLowerCase().includes(search)||cli.c.toLowerCase().includes(search))) return;
+  const search = document.getElementById("search").value.toLowerCase().trim();
+
+  list.innerHTML = "";
+
+  let visible = 0;
+
+  CLIENTS.forEach((cli,idx) => {
+    const rec = getClientRecord(cli.c);
+
+    if(search &&
+      !cli.name.toLowerCase().includes(search) &&
+      !cli.c.includes(search) &&
+      !cli.place.toLowerCase().includes(search)) {
+      return;
+    }
+
+    visible++;
+
     const div = document.createElement("div");
-    div.className="card";
-    div.innerHTML=`
+    div.className = "card";
+
+    div.innerHTML = `
       <div class="row">
         <span class="num">${idx+1}</span>
-        <div style="flex‑grow:1">
+
+        <div class="client-content">
           <div class="name">${cli.name}</div>
-          <div class="code">Código: ${cli.c} | Lugar: ${cli.place} | Cajas: ${cli.boxes}</div>
-          <span class="status ${rec.saved?'saved':'pending'}">${rec.saved?'✅ Guardado':'⏳ Pendiente'}</span>
-          <div class="collectors">${collectors.map((c,i)=>`<button class="collector ${rec.collector===i?'selected':''}" onclick="selectCollector('${cli.c}',${i})">${c}</button>`).join("")}</div>
-          <div class="payment‑title">Forma pago</div>
-          <div class="payments">${["Efectivo","Transferencia","Cheque","Crédito"].map((p,i)=>`<button class="payment ${rec.payment===i?'selected':''}" onclick="selectPayment('${cli.c}',${i})">${p}</button>`).join("")}</div>
-          <div class="amount"><input id="amt_${cli.c}" type="number" step="0.01" placeholder="Monto Q" value="${rec.amount}"><button class="save" onclick="saveClient('${cli.c}')">Guardar</button></div>
+
+          <div class="code">
+            Código: ${cli.c}<br>
+            Lugar: ${cli.place}<br>
+            Cajas físicas: ${cli.boxes.toFixed(3)}
+          </div>
+
+          <span class="status ${rec.saved?'saved':'pending'}">
+            ${rec.saved?'Guardado':'Pendiente'}
+          </span>
+
+          <div class="collectors">
+            ${collectors.map((c,i) => `
+              <button class="collector ${rec.collector===i?'selected':''}"
+                onclick="selectCollector('${cli.c}',${i})">
+                ${c}
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="payment-title">Forma de pago</div>
+
+          <div class="payments">
+            ${["Efectivo","Transferencia","Cheque","Crédito"].map((p,i) => `
+              <button class="payment ${rec.payment===i?'selected':''}"
+                onclick="selectPayment('${cli.c}',${i})">
+                ${p}
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="amount">
+            <input id="amt_${cli.c}"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              placeholder="Monto Q"
+              value="${rec.amount}">
+
+            <button class="save"
+              onclick="saveClient('${cli.c}')">
+              Guardar
+            </button>
+          </div>
         </div>
       </div>
     `;
+
     list.appendChild(div);
-  })
-}
-function updateSummary(){
-  let total=0,cobrados=0;
-  Object.values(clientData).forEach(r=>{if(r.saved){total+=Number(r.amount)||0;cobrados++}});
-  const rem = balanceRoute‑total;
-  document.getElementById("balance").innerText="Q"+balanceRoute.toFixed(2);
-  document.getElementById("remaining").innerText="Q"+rem.toFixed(2);
-  document.getElementById("count").innerText=cobrados+"/"+CLIENTS.length;
-  document.getElementById("total").innerText="Q"+total.toFixed(2);
-  document.getElementById("pending").innerText=CLIENTS.length‑cobrados;
-  document.getElementById("currentCash").innerText="Q"+(Number(depositValue)||0).toFixed(2);
+  });
+
+  if(!visible) {
+    list.innerHTML = '<div class="empty">No se encontraron clientes.</div>';
+  }
 }
 
-// Funciones originales de selección y guardado
-function selectCollector(code,i){clientData[code]=clientData[code]||{};clientData[code].collector=i;saveAll();renderList()}
-function selectPayment(code,i){clientData[code]=clientData[code]||{};clientData[code].payment=i;saveAll();renderList()}
-function saveClient(code){clientData[code]=clientData[code]||{};clientData[code].amount=document.getElementById("amt_"+code).value;clientData[code].saved=true;saveAll();renderList();updateSummary()}
-function toggleGeneralData(){document.querySelector("header").classList.toggle("summary‑open")}
-function editCollectors(){const n=prompt("Cobradores separados por coma",collectors.join(","));if(n){collectors=n.split(",").map(x=>x.trim());saveAll();renderList()}}
-function editRouteBalance(){const b=Number(prompt("Balance a recolectar",balanceRoute));if(!isNaN(b)){balanceRoute=b;saveAll();updateSummary()}}
-function autoSaveDeposit(v){depositValue=v;saveAll()}
-function saveDeposit(confirm){depositValue=document.getElementById("depositInput").value;saveAll();updateSummary();if(confirm)alert("Depositado guardado")}
+// ==========================================
+// RESUMEN GENERAL
+// ==========================================
 
-// Exportar CSV / Respaldo / Limpiar ruta
-function exportCSV(){let t="Código,Nombre,Lugar,Cajas,Cobrador,FormaPago,Monto,Guardado\n";CLIENTS.forEach(c=>{const r=clientData[c.c]||{};t+=`${c.c},"${c.name}","${c.place}",${c.boxes},${collectors[r.collector||0]||""},${["Efectivo","Transferencia","Cheque","Crédito"][r.payment||0]||""},${r.amount||""},${r.saved?"SI":"NO"}\n`});const blob=new Blob([t],{type:"text/csv;charset=utf‑8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ruta‑"+ROUTE_ID+".csv";a.click();URL.revokeObjectURL(a.href)}
-function backup(){const b=JSON.stringify({clients:CLIENTS,clientData,collectors,balanceRoute,depositValue,date:ROUTE_DATE});const blob=new Blob([b],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="respaldo‑ruta‑"+ROUTE_ID+".json";a.click();URL.revokeObjectURL(a.href)}
-function clearRoute(){if(confirm("¿Cerrar y limpiar TODOS los datos de la ruta?")){clientData={};balanceRoute=0;depositValue="";saveAll();renderList();updateSummary()}}
+function updateSummary() {
+  let total = 0;
+  let cobrados = 0;
 
-// Modal resumen cobradores
-function openSummary(){const sum={};collectors.forEach((c,i)=>sum[c]={monto:0,cant:0});Object.values(clientData).forEach(r=>{if(r.saved){const c=collectors[r.collector||0];sum[c].monto+=Number(r.amount)||0;sum[c].cant++}});let html="";Object.entries(sum).forEach(([k,v])=>html+=`<div class="tot"><span>${k}</span><strong>Q${v.monto.toFixed(2)} · ${v.cant} clientes</strong></div>`);document.getElementById("summary").innerHTML=html;document.getElementById("modal").classList.add("open")}
-function closeModal(){document.getElementById("modal").classList.remove("open")}
+  Object.values(clientData).forEach(r => {
+    if(r && r.saved) {
+      total += Number(r.amount) || 0;
+      cobrados++;
+    }
+  });
 
-// Calculadora original
-function toggleCalculator(show){const p=document.getElementById("calcPanel");p.classList.toggle("open",show!==false)}
-function calcInput(ch){if(calcNew){calcValue=ch;calcNew=false}else{calcValue+=ch}document.getElementById("calcDisplay").value=calcValue}
-function calcClear(){calcValue="0";calcOperator="";calcPrev=0;calcNew=true;document.getElementById("calcDisplay").value=calcValue}
-function calcBackspace(){calcValue=calcValue.slice(0,‑1)||"0";document.getElementById("calcDisplay").value=calcValue}
-function calcToggleSign(){calcValue=String(‑Number(calcValue));document.getElementById("calcDisplay").value=calcValue}
-function calcEquals(){if(!calcOperator)return;const curr=Number(calcValue);let res=0;switch(calcOperator){case"+":res=calcPrev+curr;break;case"‑":res=calcPrev‑curr;break;case"×":res=calcPrev*curr;break;case"÷":res=curr!==0?calcPrev/curr:0;break;case"%":res=calcPrev%curr;break}calcValue=String(res);calcOperator="";calcNew=true;document.getElementById("calcDisplay").value=calcValue}
+  const rem = balanceRoute - total;
 
-// Cambiar operador
-document.querySelectorAll(".calc‑op").forEach(btn=>{btn.onclick=()=>{calcPrev=Number(calcValue);calcOperator=btn.innerText;calcNew=true}});
+  document.getElementById("balance").innerText = money(balanceRoute);
+  document.getElementById("remaining").innerText = money(rem);
+  document.getElementById("count").innerText =
+    cobrados + "/" + CLIENTS.length;
+  document.getElementById("total").innerText = money(total);
+  document.getElementById("pending").innerText =
+    CLIENTS.length - cobrados;
+  document.getElementById("currentCash").innerText =
+    money(depositValue);
+  document.getElementById("clientCountLabel").innerText =
+    CLIENTS.length;
+  document.getElementById("boxesTotal").innerText =
+    TOTAL_BOXES.toFixed(3);
+}
 
-// Editar título ruta
-function editRouteTitle(){const t=prompt("Título de la ruta",localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE);if(t){localStorage.setItem(ROUTE_TITLE_KEY)=t;document.getElementById("routeTitle").innerText=t;document.title=t}}
+// ==========================================
+// COBRADORES Y FORMAS DE PAGO
+// ==========================================
 
-// Búsqueda
-document.getElementById("search").addEventListener("input",renderList);
-
-// Iniciar app
-function initApp(){
-  loadAll();
-  const savedTitle = localStorage.getItem(ROUTE_TITLE_KEY)||DEFAULT_ROUTE_TITLE;
-  document.getElementById("routeTitle").innerText=savedTitle;
-  document.title=savedTitle;
-  document.getElementById("depositInput").value=depositValue;
+function selectCollector(code,i) {
+  const rec = getClientRecord(code);
+  rec.collector = i;
+  saveAll();
   renderList();
   updateSummary();
 }
-// Si ya autenticado ese día
-if(document.documentElement.dataset.authRequired!=="1") initApp();
+
+function selectPayment(code,i) {
+  const rec = getClientRecord(code);
+  rec.payment = i;
+  saveAll();
+  renderList();
+}
+
+function saveClient(code) {
+  const input = document.getElementById("amt_" + code);
+  const amount = input.value.trim();
+
+  if(amount === "" || !Number.isFinite(Number(amount)) || Number(amount)<0) {
+    alert("Ingresa un monto válido.");
+    input.focus();
+    return;
+  }
+
+  const rec = getClientRecord(code);
+  rec.amount = amount;
+  rec.saved = true;
+
+  saveAll();
+  renderList();
+  updateSummary();
+}
+
+function toggleGeneralData() {
+  document.querySelector("header").classList.toggle("summary-open");
+}
+
+function editCollectors() {
+  const n = prompt(
+    "Escribe los nombres de los cobradores separados por coma:",
+    collectors.join(",")
+  );
+
+  if(n === null) return;
+
+  const names = n.split(",").map(x => x.trim()).filter(Boolean);
+
+  if(!names.length) {
+    alert("Debes ingresar al menos un cobrador.");
+    return;
+  }
+
+  collectors = names;
+  saveAll();
+  renderList();
+  openSummary();
+}
+
+function editRouteBalance() {
+  const value = prompt(
+    "Balance total a recolectar en quetzales:",
+    balanceRoute
+  );
+
+  if(value === null || value.trim()==="") return;
+
+  const b = Number(value);
+
+  if(!Number.isFinite(b) || b<0) {
+    alert("Ingresa una cantidad válida.");
+    return;
+  }
+
+  balanceRoute = b;
+  saveAll();
+  updateSummary();
+}
+
+function autoSaveDeposit(v) {
+  depositValue = v;
+  saveAll();
+  updateSummary();
+}
+
+function saveDeposit(showMessage=false) {
+  const input = document.getElementById("depositInput");
+  const v = input.value.trim();
+
+  if(v!=="" && (!Number.isFinite(Number(v)) || Number(v)<0)) {
+    alert("Cantidad de depósito no válida.");
+    return;
+  }
+
+  depositValue = v;
+  saveAll();
+  updateSummary();
+
+  if(showMessage) alert("Depósito guardado correctamente.");
+}
+
+// ==========================================
+// EXPORTAR CSV
+// ==========================================
+
+function exportCSV() {
+  let rows = [
+    ["Código","Nombre","Lugar","Cajas físicas",
+     "Cobrador","Forma de pago","Monto","Guardado"]
+  ];
+
+  const payments = ["Efectivo","Transferencia","Cheque","Crédito"];
+
+  CLIENTS.forEach(c => {
+    const r = getClientRecord(c.c);
+
+    rows.push([
+      c.c,
+      c.name,
+      c.place,
+      c.boxes.toFixed(3),
+      collectors[r.collector] || "",
+      payments[r.payment] || "",
+      r.amount || "",
+      r.saved ? "SI" : "NO"
+    ]);
+  });
+
+  const csv = rows.map(row =>
+    row.map(value =>
+      '"' + String(value).replace(/"/g,'""') + '"'
+    ).join(",")
+  ).join("\r\n");
+
+  const blob = new Blob(["\uFEFF"+csv], {
+    type:"text/csv;charset=utf-8"
+  });
+
+  downloadBlob(blob,"ruta-"+ROUTE_ID+".csv");
+}
+
+// ==========================================
+// RESPALDO
+// ==========================================
+
+function backup() {
+  const data = {
+    route:ROUTE_ID,
+    date:ROUTE_DATE,
+    clients:CLIENTS,
+    clientData,
+    collectors,
+    balanceRoute,
+    depositValue
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  downloadBlob(blob,"respaldo-ruta-"+ROUTE_ID+".json");
+}
+
+function downloadBlob(blob,filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url),1000);
+}
+
+// ==========================================
+// LIMPIAR RUTA
+// ==========================================
+
+function clearRoute() {
+  const ok = confirm(
+    "¿Cerrar y limpiar TODOS los datos de la ruta?\n\n"+
+    "Se eliminarán los cobros, cobradores, balance y depósito.\n"+
+    "Se recomienda crear un respaldo antes."
+  );
+
+  if(!ok) return;
+
+  clientData = {};
+  balanceRoute = 0;
+  depositValue = "";
+
+  saveAll();
+
+  document.getElementById("depositInput").value = "";
+
+  renderList();
+  updateSummary();
+
+  alert("La ruta ha sido limpiada.");
+}
+
+// ==========================================
+// RESUMEN POR COBRADOR
+// ==========================================
+
+function openSummary() {
+  const sum = {};
+
+  collectors.forEach((c,i) => {
+    sum[i] = {
+      name:c,
+      monto:0,
+      cant:0
+    };
+  });
+
+  Object.values(clientData).forEach(r => {
+    if(r && r.saved) {
+      const index = Number(r.collector)||0;
+
+      if(!sum[index]) {
+        sum[index] = {
+          name:collectors[index] || "Sin cobrador",
+          monto:0,
+          cant:0
+        };
+      }
+
+      sum[index].monto += Number(r.amount)||0;
+      sum[index].cant++;
+    }
+  });
+
+  let html = "";
+
+  Object.values(sum).forEach(v => {
+    html += `
+      <div class="tot">
+        <span>${v.name}</span>
+        <strong>${money(v.monto)} · ${v.cant} clientes</strong>
+      </div>
+    `;
+  });
+
+  document.getElementById("summary").innerHTML =
+    html || '<div class="empty">Sin cobros registrados.</div>';
+
+  document.getElementById("modal").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+// ==========================================
+// CALCULADORA
+// ==========================================
+
+function toggleCalculator(show) {
+  const panel = document.getElementById("calcPanel");
+  panel.classList.toggle("open",show===undefined ? !panel.classList.contains("open") : show);
+}
+
+function calcInput(ch) {
+  if(calcNew) {
+    calcValue = ch==="." ? "0." : ch;
+    calcNew = false;
+  } else {
+    if(ch==="." && calcValue.includes(".")) return;
+    calcValue += ch;
+  }
+
+  document.getElementById("calcDisplay").value = calcValue;
+}
+
+function calcSetOperator(op) {
+  if(calcOperator && !calcNew) calcEquals();
+
+  calcPrev = Number(calcValue);
+  calcOperator = op;
+  calcNew = true;
+}
+
+function calcClear() {
+  calcValue = "0";
+  calcOperator = "";
+  calcPrev = 0;
+  calcNew = true;
+  document.getElementById("calcDisplay").value = calcValue;
+}
+
+function calcBackspace() {
+  if(calcNew) return;
+
+  calcValue = calcValue.slice(0,-1) || "0";
+
+  if(calcValue === "-") calcValue = "0";
+
+  document.getElementById("calcDisplay").value = calcValue;
+}
+
+function calcToggleSign() {
+  calcValue = String(-Number(calcValue));
+  document.getElementById("calcDisplay").value = calcValue;
+}
+
+function calcEquals() {
+  if(!calcOperator) return;
+
+  const curr = Number(calcValue);
+  let res = 0;
+
+  switch(calcOperator) {
+    case "+": res = calcPrev + curr; break;
+    case "-": res = calcPrev - curr; break;
+    case "*": res = calcPrev * curr; break;
+    case "/":
+      if(curr===0) {
+        alert("No se puede dividir entre cero.");
+        return;
+      }
+      res = calcPrev / curr;
+      break;
+    case "%":
+      if(curr===0) {
+        alert("No se puede calcular módulo entre cero.");
+        return;
+      }
+      res = calcPrev % curr;
+      break;
+  }
+
+  calcValue = String(Number(res.toFixed(8)));
+  calcOperator = "";
+  calcNew = true;
+
+  document.getElementById("calcDisplay").value = calcValue;
+}
+
+// ==========================================
+// EDITAR TÍTULO
+// ==========================================
+
+function editRouteTitle() {
+  const t = prompt(
+    "Título de la ruta:",
+    localStorage.getItem(ROUTE_TITLE_KEY) || DEFAULT_ROUTE_TITLE
+  );
+
+  if(t && t.trim()) {
+    localStorage.setItem(ROUTE_TITLE_KEY,t.trim());
+    document.getElementById("routeTitle").innerText = t.trim();
+    document.title = t.trim();
+  }
+}
+
+// ==========================================
+// BÚSQUEDA
+// ==========================================
+
+document.getElementById("search").addEventListener(
+  "input",
+  renderList
+);
+
+// ==========================================
+// INICIAR APLICACIÓN
+// ==========================================
+
+function initApp() {
+  loadAll();
+
+  const savedTitle =
+    localStorage.getItem(ROUTE_TITLE_KEY) || DEFAULT_ROUTE_TITLE;
+
+  document.getElementById("routeTitle").innerText = savedTitle;
+  document.title = savedTitle;
+
+  document.getElementById("depositInput").value = depositValue;
+
+  renderList();
+  updateSummary();
+
+  setDiagnostic("Sistema activo · 39 clientes");
+}
+
+if(document.documentElement.dataset.authRequired!=="1") {
+  initApp();
+}
+
+// ==========================================
+// CONTROL DE ERRORES
+// ==========================================
+
+window.addEventListener("error",function() {
+  setDiagnostic("Se detectó un error");
+});
+
 </script>
 </body>
 </html>
+8
